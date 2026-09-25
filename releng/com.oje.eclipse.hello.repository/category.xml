@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <feature
+        id="com.oje.eclipse.hello.feature"
+        version="1.0.0.qualifier">
+        <category name="oje.eclipse.tools"/>
+    </feature>
+    <category-def
+        name="oje.eclipse.tools"
+        label="OJE Eclipse Tools">
+        <description>
+            Erweiterungen fuer Eclipse und SAP ADT von oje.me.
+        </description>
+    </category-def>
+</site>

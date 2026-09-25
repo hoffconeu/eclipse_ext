@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="com.oje.eclipse.hello.feature"
+    label="OJE Eclipse Extension"
+    version="1.0.0.qualifier"
+    provider-name="oje.me">
+
+    <description url="https://ext.oje.me/">
+        Ein kleines, unabhaengiges Hello-World-Plug-in fuer Eclipse und SAP ADT.
+    </description>
+
+    <copyright>
+        Copyright 2026 oje.me
+    </copyright>
+
+    <license url="https://ext.oje.me/">
+        Proprietary software. Installation and use are permitted by the owner.
+    </license>
+
+    <plugin
+        id="com.oje.eclipse.hello"
+        download-size="0"
+        install-size="0"
+        version="0.0.0"
+        unpack="false"/>
+</feature>

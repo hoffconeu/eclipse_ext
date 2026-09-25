@@ -1,0 +1,26 @@
+**/target/
+**/bin/
+.metadata/
+.settings/
+*.log
+public/update-site/
+public/update-site.backup-*/
+
+# Server-local deployment details must never enter the public repository.
+deploy/
+docs/OPERATIONS.md
+scripts/publish-local.sh
+public/repository
+
+# Common credential and key material.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_ed25519
