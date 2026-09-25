@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>OJE Eclipse Diagnose senden</title>
+    <style>
+        :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+        body { margin: 0; min-height: 100vh; background: #0b1220; color: #e5eefc; }
+        main { width: min(720px, calc(100% - 3rem)); margin: auto; padding: 3rem 0; }
+        .card { padding: 2rem; border: 1px solid #263a5b; border-radius: 18px; background: #111c30; box-shadow: 0 24px 80px #0006; }
+        h1 { margin-top: 0; }
+        p, label { color: #b9c9e5; line-height: 1.55; }
+        label { display: block; margin: 1rem 0 .4rem; font-weight: 700; }
+        input, textarea { box-sizing: border-box; width: 100%; padding: .8rem; border: 1px solid #42618d; border-radius: 8px; background: #060d18; color: #e5eefc; font: inherit; }
+        textarea { min-height: 13rem; resize: vertical; }
+        button { margin-top: 1.2rem; padding: .85rem 1.1rem; border: 0; border-radius: 8px; background: #38bdf8; color: #082f49; font: inherit; font-weight: 800; cursor: pointer; }
+        button:disabled { cursor: wait; opacity: .65; }
+        a { color: #7dd3fc; }
+        .notice { padding: .9rem; border-left: 4px solid #fbbf24; background: #2b2413; color: #fde68a; }
+        #status { min-height: 1.5em; margin-top: 1rem; font-weight: 700; }
+        .success { color: #86efac; }
+        .error { color: #fca5a5; }
+    </style>
+</head>
+<body>
+<main>
+    <div class="card">
+        <p><a href="./">← Zurueck</a></p>
+        <h1>Eclipse-Diagnose senden</h1>
+        <p class="notice">Nur freigegebene Diagnoseinformationen senden. Keine Passwoerter, Zugangsdaten, Kundeninformationen oder vertraulichen Quelltexte hochladen.</p>
+        <form id="diagnostics-form">
+            <label for="upload-pin">Upload-PIN</label>
+            <input id="upload-pin" name="pin" type="password" required autocomplete="off">
+
+            <label for="message">Fehlermeldung oder Beschreibung</label>
+            <textarea id="message" name="message" maxlength="100000" placeholder="Was ist passiert? Fehlermeldung hier einfuegen."></textarea>
+
+            <label for="files">Optional: Logs oder Screenshots</label>
+            <input id="files" name="files" type="file" multiple accept=".txt,.log,.png,.jpg,.jpeg,.webp,text/plain,image/png,image/jpeg,image/webp">
+            <p>Maximal drei Dateien, jeweils 5 MB und insgesamt 10 MB. Speicherung fuer hoechstens sieben Tage.</p>
+
+            <button id="submit-button" type="submit">Diagnose sicher senden</button>
+            <p id="status" role="status" aria-live="polite"></p>
+        </form>
+    </div>
+</main>
+<script src="diagnostics.js" defer></script>
+</body>
+</html>
