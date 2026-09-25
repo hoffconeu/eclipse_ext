@@ -29,6 +29,20 @@ Die derzeitige Update-Site lautet:
 https://ext.oje.me/repository/
 ```
 
+Als GitHub-basierte Alternative steht das gleiche p2-Repository unter dieser
+Adresse bereit:
+
+```text
+https://raw.githubusercontent.com/hoffconeu/eclipse_ext/gh-pages/repository/
+```
+
+Fuer eine lokale Installation kann die fertige Update-Site als ZIP geladen
+und in Eclipse ueber `Add...` -> `Archive...` ausgewaehlt werden:
+
+```text
+https://raw.githubusercontent.com/hoffconeu/eclipse_ext/gh-pages/oje-eclipse-update-site.zip
+```
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
