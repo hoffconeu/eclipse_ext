@@ -43,6 +43,13 @@ und in Eclipse ueber `Add...` -> `Archive...` ausgewaehlt werden:
 https://raw.githubusercontent.com/hoffconeu/eclipse_ext/gh-pages/oje-eclipse-update-site.zip
 ```
 
+Freigegebene Fehlermeldungen, Logs und Screenshots koennen ueber den
+PIN-geschuetzten Diagnosebereich gesendet werden:
+
+```text
+https://hoffconeu.github.io/eclipse_ext/diagnostics.html
+```
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
