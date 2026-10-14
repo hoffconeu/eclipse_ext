@@ -2,7 +2,7 @@
 <site>
     <feature
         id="com.oje.eclipse.hello.feature"
-        version="1.0.1.qualifier">
+        version="1.0.2.qualifier">
         <category name="oje.eclipse.tools"/>
     </feature>
     <category-def

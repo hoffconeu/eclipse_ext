@@ -9,12 +9,19 @@
             id="com.oje.eclipse.hello.commands.sayHello"
             categoryId="com.oje.eclipse.hello.commands.category"
             name="Hello World anzeigen"/>
+        <command
+            id="com.oje.eclipse.hello.commands.checkSelection"
+            categoryId="com.oje.eclipse.hello.commands.category"
+            name="ABAP-Auswahl lokal pruefen"/>
     </extension>
 
     <extension point="org.eclipse.ui.handlers">
         <handler
             commandId="com.oje.eclipse.hello.commands.sayHello"
             class="com.oje.eclipse.hello.handlers.HelloHandler"/>
+        <handler
+            commandId="com.oje.eclipse.hello.commands.checkSelection"
+            class="com.oje.eclipse.hello.handlers.SourceSelectionHandler"/>
     </extension>
 
     <extension point="org.eclipse.ui.menus">
@@ -22,6 +29,10 @@
             <command
                 commandId="com.oje.eclipse.hello.commands.sayHello"
                 label="OJE Hello World"
+                style="push"/>
+            <command
+                commandId="com.oje.eclipse.hello.commands.checkSelection"
+                label="OJE ABAP-Auswahl pruefen (lokal)"
                 style="push"/>
         </menuContribution>
         <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">

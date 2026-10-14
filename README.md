@@ -2,6 +2,17 @@
 
 Eine installierbare Eclipse-Erweiterung, die unabhaengig neben SAP ADT laeuft.
 Der erste Meilenstein fuegt unter `Help` den Befehl `OJE Hello World` hinzu.
+Version 1.0.2 ergaenzt `OJE ABAP-Auswahl pruefen (lokal)`: In einem
+geoeffneten ABAP-Editor Quelltext markieren und den Befehl waehlen. Er zeigt
+nur Editortitel und Laenge der Markierung an. Ohne Markierung wird kein ganzes
+Objekt erfasst. Es findet weder ein Upload noch eine Aenderung in SAP statt.
+Der Befehl dient zunaechst dazu, die ADT-Editor-Kompatibilitaet zu pruefen.
+
+Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
+automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Eine
+Verschluesselungsroutine liegt als getesteter Baustein im Quellcode, ist aber
+noch mit keinem UI-Befehl oder Transport verbunden. Das Sicherheitskonzept
+steht in [docs/SECURE_ABAP_EXCHANGE.md](docs/SECURE_ABAP_EXCHANGE.md).
 
 ## Voraussetzungen
 
@@ -128,13 +139,16 @@ Cloudflare-Access-Schutz fuer `/commands*`.
 4. `OJE Eclipse Extension` installieren und Eclipse neu starten.
 5. `Help` → `OJE Hello World` ausfuehren.
 
-Fuer den Update-Test auf Version 1.0.1 denselben Repository-Eintrag erneut
+Fuer den Update-Test auf Version 1.0.2 denselben Repository-Eintrag erneut
 unter `Help` → `Install New Software...` waehlen und den Haken bei `Contact
 all update sites during install to find required software` deaktiviert lassen.
 Vor dem Abschluss in `Install Details` pruefen, dass keine Eclipse-, ASM-,
 Jetty- oder EMF-Plattformpakete zur Installation vorgesehen sind. Nach dem
 Neustart zeigt `Help` → `OJE Hello World` den Dialogtitel
-`OJE Eclipse Extension – Update-Test v1.0.1` und den neuen Meldungstext.
+`OJE Eclipse Extension – Update-Test v1.0.1` und den neuen Meldungstext;
+zusaetzlich steht `OJE ABAP-Auswahl pruefen (lokal)` im Help-Menue. Zum Test
+nur eine harmlose Markierung verwenden und lediglich bestaetigen, ob Titel und
+Laenge angezeigt werden. Keinen Quelltext im Diagnoseformular versenden.
 
 Das Plug-in ist derzeit nicht kryptografisch signiert. Eclipse kann deshalb
 waehrend der Installation eine Warnung zu nicht signiertem Inhalt anzeigen.

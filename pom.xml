@@ -6,7 +6,7 @@
 
     <groupId>me.oje.eclipse</groupId>
     <artifactId>eclipse-extension-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>OJE Eclipse Extension</name>
