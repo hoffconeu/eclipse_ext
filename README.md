@@ -68,6 +68,18 @@ zurueckgesendet werden:
 https://eclipse-ext.pages.dev/commands
 ```
 
+Neue Befehle werden aus einer geschuetzten Befehlsliste geladen. Ein offener
+Tab prueft alle 15 Sekunden auf Aenderungen. Zum Veroeffentlichen wird eine
+lokale Textdatei mit dem Befehl benoetigt:
+
+```bash
+./scripts/command-board.py put --id mein-test --title "Mein Test" --body-file /pfad/zum/befehl.txt
+```
+
+Der Befehl erscheint ohne Git-Push oder Pages-Deployment. Mit `list` lassen
+sich die Titel anzeigen; `remove mein-test` entfernt einen Eintrag. Die
+serverlokale Einrichtung ist in der privaten Betriebsdokumentation beschrieben.
+
 ## Cloudflare Pages
 
 Das Cloudflare-Pages-Projekt `eclipse-ext` wird unter
@@ -89,6 +101,10 @@ als Cloudflare-Secret `DIAGNOSTICS_UPLOAD_PIN` vor und wird von der Function
 serverseitig ergaenzt. Die Pfade `/commands*`, `/diagnostics*` und
 `/api/diagnostics*` sind durch Cloudflare Access geschuetzt; das p2-Repository
 bleibt oeffentlich. Zugangsdaten gehoeren nicht in Git.
+
+Die Pages Function unter `/commands-feed` holt die Befehlsliste serverseitig
+ueber denselben internen Schluessel. Der Pfad faellt unter den bestehenden
+Cloudflare-Access-Schutz fuer `/commands*`.
 
 ## Installation
 
