@@ -50,6 +50,13 @@ PIN-geschuetzten Diagnosebereich gesendet werden:
 https://hoffconeu.github.io/eclipse_ext/diagnostics.html
 ```
 
+Aktuelle Diagnose- und Wiederherstellungsbefehle fuer den Zielrechner stehen
+mit Kopierfunktion unter:
+
+```text
+https://ext.oje.me/commands.html
+```
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
