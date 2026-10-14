@@ -1,0 +1,17 @@
+OJE 1.0.4: Teams-Popups lokal pruefen (noch keine Telegram-Weiterleitung)
+
+1. In Eclipse ueber Help > Install New Software... oder den bestehenden
+   Update-Weg die Version 1.0.4 von https://eclipse-ext.pages.dev/repository/
+   installieren. "Contact all update sites during install to find required
+   software" deaktiviert lassen. Wenn andere Eclipse-/SAP-Pakete im
+   Installationsplan auftauchen: abbrechen und den Plan melden.
+2. Eclipse neu starten und Help > OJE Teams-Popups pruefen (nur lokal) waehlen.
+3. Den Startdialog bestaetigen. Innerhalb von 45 Sekunden eine harmlose
+   Teams-Testnachricht schicken lassen und danach einen Teams-Testanruf
+   ausloesen lassen. Beide Popups sollen rechts sichtbar sein.
+4. Den OJE-Ergebnisdialog kopieren und ueber diese geschuetzte Befehlsseite
+   senden. Keine Teams-Namen, Nachrichtentexte oder Screenshots mitschicken.
+
+Der Test startet nur die vorhandene Windows PowerShell. Er installiert
+keine EXE, sendet nichts an Telegram oder einen Server und meldet nur
+Zahlen und generische Schaltflaechen-Merkmale neuer Teams-Fenster.
