@@ -41,7 +41,7 @@
         <p><a href="./">← Zurueck zur Eclipse-Seite</a></p>
         <p class="eyebrow">Zum Kopieren</p>
         <h1>Eclipse-Befehle</h1>
-        <p>Hier stelle ich dir die jeweils aktuellen Befehle bereit. In Windows bitte <strong>cmd.exe</strong> oeffnen, den Block kopieren, einfuegen und mit Enter ausfuehren.</p>
+        <p>Hier stelle ich dir die jeweils aktuellen Befehle bereit. In Windows bitte <strong>PowerShell</strong> oeffnen, den Block kopieren, einfuegen und mit Enter ausfuehren.</p>
 
         <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl liest nur die p2-Profilhistorie und veraendert weder Eclipse noch deinen Workspace.</p>
 
@@ -49,8 +49,8 @@
             <h2 id="profile-history-heading">1. Verfuegbare Wiederherstellungspunkte anzeigen</h2>
             <p>Die Ausgabe danach bitte komplett an mich schicken.</p>
             <div class="command">
-                <pre id="profile-history-command">cd /d "%USERPROFILE%\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
-dir /s /b p2\org.eclipse.equinox.p2.engine\profileRegistry\*.profile.gz</pre>
+                <pre id="profile-history-command">Set-Location "$env:USERPROFILE\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
+Get-ChildItem -Path ".\p2\org.eclipse.equinox.p2.engine\profileRegistry" -Filter "*.profile.gz" -File -Recurse | Select-Object -ExpandProperty FullName</pre>
                 <div class="actions">
                     <button class="secondary" type="button" data-use-target="profile-history-command">Fuer Antwort uebernehmen</button>
                     <button type="button" data-copy-target="profile-history-command">Befehl kopieren</button>
@@ -68,12 +68,13 @@ dir /s /b p2\org.eclipse.equinox.p2.engine\profileRegistry\*.profile.gz</pre>
             <form id="command-response-form">
                 <label for="upload-pin">Upload-PIN</label>
                 <input id="upload-pin" type="password" required autocomplete="off">
+                <p>Der PIN bleibt fuer weitere Rueckmeldungen gueltig, bis er bewusst geaendert wird.</p>
 
                 <label for="executed-command">Ausgefuehrter Befehl</label>
                 <textarea id="executed-command" maxlength="20000" required placeholder="Befehl hier einfuegen oder oben auf 'Fuer Antwort uebernehmen' klicken."></textarea>
 
                 <label for="command-output">Ausgabe oder Fehlermeldung</label>
-                <textarea id="command-output" maxlength="75000" required placeholder="Komplette Ausgabe aus cmd.exe hier einfuegen."></textarea>
+                <textarea id="command-output" maxlength="75000" required placeholder="Komplette Ausgabe aus PowerShell hier einfuegen."></textarea>
 
                 <label for="response-note">Optionale Notiz</label>
                 <textarea id="response-note" maxlength="4000" placeholder="Zum Beispiel: Was hast du direkt davor gemacht?"></textarea>
