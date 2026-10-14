@@ -55,8 +55,8 @@ https://eclipse-ext.pages.dev/diagnostics
 
 Aktuelle Diagnose- und Wiederherstellungsbefehle fuer den Zielrechner stehen
 mit Kopierfunktion unter. Auf derselben Seite koennen der ausgefuehrte Befehl
-und seine Ausgabe PIN-geschuetzt an den Diagnose-Posteingang zurueckgesendet
-werden:
+und seine Ausgabe nach Cloudflare-Access-Anmeldung an den Diagnose-Posteingang
+zurueckgesendet werden:
 
 ```text
 https://eclipse-ext.pages.dev/commands
@@ -78,7 +78,11 @@ serverseitig an das bestehende Backend weiter. Im Browser wird dadurch keine
 Backend-Domain verwendet. Im Pages-Projekt ist fuer Production und Preview die
 Variable
 `DIAGNOSTICS_ORIGIN_URL` mit der vollstaendigen HTTPS-Adresse des bestehenden
-Diagnose-Endpunkts gesetzt. Zugangsdaten gehoeren nicht in Git.
+Diagnose-Endpunkts gesetzt. Der interne Upload-Schluessel liegt ausschliesslich
+als Cloudflare-Secret `DIAGNOSTICS_UPLOAD_PIN` vor und wird von der Function
+serverseitig ergaenzt. Die Pfade `/commands*`, `/diagnostics*` und
+`/api/diagnostics*` sind durch Cloudflare Access geschuetzt; das p2-Repository
+bleibt oeffentlich. Zugangsdaten gehoeren nicht in Git.
 
 ## Installation
 
