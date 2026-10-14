@@ -4,6 +4,7 @@ const JSON_HEADERS = {
     'Referrer-Policy': 'no-referrer',
     'X-Content-Type-Options': 'nosniff',
 };
+const MAX_REQUEST_SIZE = 11 * 1024 * 1024;
 
 export async function onRequestPost(context) {
     const backendUrl = context.env.DIAGNOSTICS_ORIGIN_URL;
@@ -14,6 +15,16 @@ export async function onRequestPost(context) {
     const contentType = context.request.headers.get('Content-Type') || '';
     if (!contentType.toLowerCase().startsWith('multipart/form-data;')) {
         return jsonResponse(415, 'Es werden nur Formulardaten akzeptiert.');
+    }
+
+    const declaredSize = Number(context.request.headers.get('Content-Length') || 0);
+    if (declaredSize > MAX_REQUEST_SIZE) {
+        return jsonResponse(413, 'Der Diagnose-Upload ist zu gross.');
+    }
+
+    const body = await context.request.arrayBuffer();
+    if (body.byteLength > MAX_REQUEST_SIZE) {
+        return jsonResponse(413, 'Der Diagnose-Upload ist zu gross.');
     }
 
     let target;
@@ -37,7 +48,7 @@ export async function onRequestPost(context) {
         const response = await fetch(target, {
             method: 'POST',
             headers,
-            body: context.request.body,
+            body,
             redirect: 'manual',
         });
 
