@@ -1,0 +1,8 @@
+Falls der PowerShell-Test HTTP 200 für beide JARs meldet, bitte zusätzlich in Eclipse prüfen:
+
+1. Window > Show View > Error Log öffnen (ggf. über Other...).
+2. Den Eintrag zum fehlgeschlagenen Installationsversuch von heute doppelt anklicken.
+3. Unter Event Details den Exception Stack Trace kopieren und über die Befehlsseite senden.
+4. In Window > Preferences > General > Network Connections nur den Wert von Active Provider notieren (Direct, Native oder Manual). Keine Proxy-Zugangsdaten senden oder ändern.
+
+Bitte vorerst keinen weiteren Installationsversuch starten. Die Meldung zeigt neben OJE-JARs auch Plattform-Artefakte; wir klären erst den Downloadfehler und den Installationsplan.

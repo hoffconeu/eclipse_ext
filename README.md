@@ -80,6 +80,13 @@ Der Befehl erscheint ohne Git-Push oder Pages-Deployment. Mit `list` lassen
 sich die Titel anzeigen; `remove mein-test` entfernt einen Eintrag. Die
 serverlokale Einrichtung ist in der privaten Betriebsdokumentation beschrieben.
 
+Der Diagnosebefehl `scripts/diagnostics/check-p2-download.ps1` prueft bei
+einem p2-Artefaktfehler die Metadaten und die beiden OJE-JARs direkt auf dem
+Zielrechner. Er speichert keine Dateien und aendert Eclipse nicht. Wenn die
+Downloads dort funktionieren, helfen die Details aus der Eclipse-Ansicht
+`Window` -> `Show View` -> `Error Log` und der Wert von `General` ->
+`Network Connections` -> `Active Provider` bei der weiteren Eingrenzung.
+
 ## Cloudflare Pages
 
 Das Cloudflare-Pages-Projekt `eclipse-ext` wird unter
