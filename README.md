@@ -68,6 +68,11 @@ zurueckgesendet werden:
 https://eclipse-ext.pages.dev/commands
 ```
 
+Das Rueckmeldeformular nimmt bis zu 5 MiB UTF-8-Text pro Nachricht an und
+schneidet eingefuegte Logs nicht stillschweigend ab. Groessere Nachrichten
+werden vor dem Senden mit einer Fehlermeldung abgelehnt; der Text bleibt im
+Formular erhalten.
+
 Neue Befehle werden aus einer geschuetzten Befehlsliste geladen. Ein offener
 Tab prueft alle 15 Sekunden auf Aenderungen. Zum Veroeffentlichen wird eine
 lokale Textdatei mit dem Befehl benoetigt:

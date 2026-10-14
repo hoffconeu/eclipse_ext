@@ -4,11 +4,13 @@ const liveCommandsList = document.querySelector('#live-commands-list');
 const responseForm = document.querySelector('#command-response-form');
 const commandInput = document.querySelector('#executed-command');
 const outputInput = document.querySelector('#command-output');
+const outputSize = document.querySelector('#command-output-size');
 const noteInput = document.querySelector('#response-note');
 const responseSubmit = document.querySelector('#response-submit');
 const responseStatus = document.querySelector('#response-status');
 const apiUrl = '/api/diagnostics';
-const maxMessageSize = 100000;
+const maxMessageSize = 5 * 1024 * 1024;
+const textEncoder = new TextEncoder();
 let displayedRevision;
 let loadingCommands = false;
 
@@ -110,26 +112,44 @@ refreshCommands();
 setInterval(refreshCommands, 15_000);
 document.addEventListener('visibilitychange', refreshCommands);
 
+function currentMessage() {
+    const command = commandInput.value.trim();
+    const output = outputInput.value.trim();
+    const note = noteInput.value.trim();
+    return {
+        command,
+        output,
+        message: [
+            'Quelle: Eclipse-Befehlsseite',
+            '',
+            'Aktion oder ausgefuehrter Befehl:',
+            command,
+            '',
+            'Ausgabe:',
+            output,
+            ...(note ? ['', 'Notiz:', note] : []),
+        ].join('\n'),
+    };
+}
+
+function updateMessageSize() {
+    const bytes = textEncoder.encode(currentMessage().message).byteLength;
+    outputSize.textContent = `${bytes.toLocaleString('de-DE')} Byte insgesamt. Maximal 5 MiB; der Text wird nicht abgeschnitten.`;
+    outputSize.className = bytes > maxMessageSize ? 'error' : '';
+}
+
+for (const field of [commandInput, outputInput, noteInput]) {
+    field.addEventListener('input', updateMessageSize);
+}
+
 responseForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     responseStatus.className = 'status';
 
-    const command = commandInput.value.trim();
-    const output = outputInput.value.trim();
-    const note = noteInput.value.trim();
-    const message = [
-        'Quelle: Eclipse-Befehlsseite',
-        '',
-        'Aktion oder ausgefuehrter Befehl:',
-        command,
-        '',
-        'Ausgabe:',
-        output,
-        ...(note ? ['', 'Notiz:', note] : []),
-    ].join('\n');
+    const { message } = currentMessage();
 
-    if (new TextEncoder().encode(message).byteLength > maxMessageSize) {
-        showResponseError('Die Rueckmeldung ist zu lang. Bitte die Ausgabe kuerzen oder als Logdatei ueber den Diagnosebereich senden.');
+    if (textEncoder.encode(message).byteLength > maxMessageSize) {
+        showResponseError('Die Rueckmeldung ist groesser als 5 MiB. Bitte nur den relevanten Logabschnitt senden. Dein eingefuegter Text bleibt erhalten.');
         return;
     }
 
@@ -152,6 +172,8 @@ responseForm.addEventListener('submit', async (event) => {
         }
 
         responseForm.reset();
+        outputSize.textContent = 'Bis zu 5 MiB Text pro Rueckmeldung. Eingefuegter Text wird nicht abgeschnitten.';
+        outputSize.className = '';
         responseStatus.className = 'status success';
         responseStatus.textContent = `Erfolgreich gesendet. Bitte nenne mir die Vorgangsnummer ${result.id}.`;
     } catch (error) {

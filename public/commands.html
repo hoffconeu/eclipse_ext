@@ -142,18 +142,19 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
 
         <section aria-labelledby="response-heading">
             <h2 id="response-heading">Ausgabe sicher zuruecksenden</h2>
-            <p>Hier kannst du die Meldung aus Eclipse oder die Ausgabe eines ausgefuehrten Befehls senden. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
+            <p>Hier kannst du auch grosse Eclipse-Logs direkt einfuegen. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
             <p class="notice">Vor dem Senden pruefen: keine Passwoerter, Tokens, Kundendaten, vertraulichen Quelltexte oder andere nicht freigegebene Informationen einfuegen.</p>
 
             <form id="command-response-form">
                 <label for="executed-command">Aktion in Eclipse oder ausgefuehrter Befehl</label>
-                <textarea id="executed-command" maxlength="20000" required placeholder="Zum Beispiel: Help → Install New Software; oder ausgefuehrten Befehl einfuegen."></textarea>
+                <textarea id="executed-command" required placeholder="Zum Beispiel: Help → Install New Software; oder ausgefuehrten Befehl einfuegen."></textarea>
 
                 <label for="command-output">Angezeigte Meldung oder Ausgabe</label>
-                <textarea id="command-output" maxlength="75000" required placeholder="Meldung aus Eclipse oder Ausgabe aus PowerShell einfuegen."></textarea>
+                <textarea id="command-output" required aria-describedby="command-output-size" placeholder="Meldung aus Eclipse oder Ausgabe aus PowerShell einfuegen."></textarea>
+                <p id="command-output-size" role="status" aria-live="polite">Bis zu 5 MiB Text pro Rueckmeldung. Eingefuegter Text wird nicht abgeschnitten.</p>
 
                 <label for="response-note">Optionale Notiz</label>
-                <textarea id="response-note" maxlength="4000" placeholder="Zum Beispiel: Was hast du direkt davor gemacht?"></textarea>
+                <textarea id="response-note" placeholder="Zum Beispiel: Was hast du direkt davor gemacht?"></textarea>
 
                 <button id="response-submit" type="submit">Antwort sicher senden</button>
                 <p id="response-status" class="status" role="status" aria-live="polite"></p>
@@ -163,6 +164,6 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
         <footer>Zuletzt aktualisiert: 14.10.2026</footer>
     </div>
 </main>
-<script src="commands.js?v=20261014-live-board" defer></script>
+<script src="commands.js?v=20261014-large-text" defer></script>
 </body>
 </html>
