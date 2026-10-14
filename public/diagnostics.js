@@ -3,7 +3,7 @@ const filesInput = document.querySelector('#files');
 const submitButton = document.querySelector('#submit-button');
 const statusBox = document.querySelector('#status');
 
-const apiUrl = 'https://ext.oje.me/api/diagnostics';
+const apiUrl = '/api/diagnostics';
 const maxFileSize = 5 * 1024 * 1024;
 const maxTotalSize = 10 * 1024 * 1024;
 

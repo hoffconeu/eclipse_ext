@@ -57,6 +57,22 @@ mit Kopierfunktion unter:
 https://ext.oje.me/commands.html
 ```
 
+## Cloudflare Pages
+
+Der Branch `gh-pages` kann als statische Cloudflare-Pages-Anwendung betrieben
+werden. Empfohlene Einstellungen:
+
+- Production Branch: `gh-pages`
+- Framework Preset: keines
+- Build Command: `exit 0`
+- Build Output Directory: `.`
+
+Die Pages Function unter `/api/diagnostics` leitet Diagnose-Uploads
+serverseitig an das bestehende Backend weiter. Im Browser wird dadurch keine
+Backend-Domain verwendet. Im Pages-Projekt muss fuer Production die Variable
+`DIAGNOSTICS_ORIGIN_URL` mit der vollstaendigen HTTPS-Adresse des bestehenden
+Diagnose-Endpunkts gesetzt werden. Zugangsdaten gehoeren nicht in Git.
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
