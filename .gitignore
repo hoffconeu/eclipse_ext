@@ -3,6 +3,8 @@
 .metadata/
 .settings/
 *.log
+**/__pycache__/
+*.pyc
 public/update-site/
 public/update-site.backup-*/
 

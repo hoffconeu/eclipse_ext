@@ -1,11 +1,14 @@
 import com.oje.eclipse.hello.crypto.JweEnvelope;
+import com.oje.eclipse.hello.crypto.PinnedRecipientKey;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HexFormat;
 import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -19,6 +22,21 @@ public final class JweEnvelopeSelfTest {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(3072);
         KeyPair recipient = generator.generateKeyPair();
+        String pem = "-----BEGIN PUBLIC KEY-----\n"
+            + Base64.getMimeEncoder(64, new byte[] {'\n'})
+                .encodeToString(recipient.getPublic().getEncoded())
+            + "\n-----END PUBLIC KEY-----";
+        String fingerprint = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+            .digest(recipient.getPublic().getEncoded()));
+        require(Arrays.equals(recipient.getPublic().getEncoded(),
+            PinnedRecipientKey.fromPem(pem, fingerprint).getEncoded()),
+            "pinned public key mismatch");
+        try {
+            PinnedRecipientKey.fromPem(pem, "0".repeat(64));
+            throw new AssertionError("wrong public key pin was accepted");
+        } catch (java.security.GeneralSecurityException expected) {
+            // A substituted key cannot pass an independently checked pin.
+        }
         byte[] message = "ABAP test data only: äöü".getBytes(StandardCharsets.UTF_8);
         String token = JweEnvelope.encrypt(message, recipient.getPublic());
         String[] parts = token.split("\\.", -1);
@@ -56,6 +74,12 @@ public final class JweEnvelopeSelfTest {
 
         require(!token.equals(JweEnvelope.encrypt(message, recipient.getPublic())),
             "encryption must use fresh randomness");
+        try {
+            JweEnvelope.encrypt(new byte[1024 * 1024 + 1], recipient.getPublic());
+            throw new AssertionError("oversized payload was accepted");
+        } catch (IllegalArgumentException expected) {
+            // Size bound is enforced before encryption.
+        }
         System.out.println("JWE self-test passed");
     }
 
