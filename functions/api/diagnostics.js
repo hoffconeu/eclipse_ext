@@ -8,7 +8,8 @@ const MAX_REQUEST_SIZE = 11 * 1024 * 1024;
 
 export async function onRequestPost(context) {
     const backendUrl = context.env.DIAGNOSTICS_ORIGIN_URL;
-    if (!backendUrl) {
+    const uploadPin = context.env.DIAGNOSTICS_UPLOAD_PIN;
+    if (!backendUrl || !uploadPin) {
         return jsonResponse(503, 'Der Diagnose-Proxy ist noch nicht konfiguriert.');
     }
 
@@ -27,6 +28,16 @@ export async function onRequestPost(context) {
         return jsonResponse(413, 'Der Diagnose-Upload ist zu gross.');
     }
 
+    let formData;
+    try {
+        formData = await new Response(body, {
+            headers: { 'Content-Type': contentType },
+        }).formData();
+    } catch {
+        return jsonResponse(400, 'Die Formulardaten sind ungueltig.');
+    }
+    formData.set('pin', uploadPin);
+
     let target;
     try {
         target = new URL(backendUrl);
@@ -40,7 +51,6 @@ export async function onRequestPost(context) {
 
     const headers = new Headers({
         Accept: 'application/json',
-        'Content-Type': contentType,
         Origin: target.origin,
     });
 
@@ -48,7 +58,7 @@ export async function onRequestPost(context) {
         const response = await fetch(target, {
             method: 'POST',
             headers,
-            body,
+            body: formData,
             redirect: 'manual',
         });
 

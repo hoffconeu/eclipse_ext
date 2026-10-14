@@ -3,7 +3,6 @@ const responseForm = document.querySelector('#command-response-form');
 const commandInput = document.querySelector('#executed-command');
 const outputInput = document.querySelector('#command-output');
 const noteInput = document.querySelector('#response-note');
-const pinInput = document.querySelector('#upload-pin');
 const responseSubmit = document.querySelector('#response-submit');
 const responseStatus = document.querySelector('#response-status');
 const apiUrl = '/api/diagnostics';
@@ -62,7 +61,6 @@ responseForm.addEventListener('submit', async (event) => {
     }
 
     const body = new FormData();
-    body.set('pin', pinInput.value);
     body.set('message', message);
 
     responseSubmit.disabled = true;

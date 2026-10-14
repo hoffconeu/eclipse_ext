@@ -62,14 +62,10 @@ Get-ChildItem -Path ".\p2\org.eclipse.equinox.p2.engine\profileRegistry" -Filter
 
         <section aria-labelledby="response-heading">
             <h2 id="response-heading">Ausgabe sicher zuruecksenden</h2>
-            <p>Den ausgefuehrten Befehl und seine Ausgabe hier einfuegen. Die Seite fuehrt selbst nichts aus. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
+            <p>Den ausgefuehrten Befehl und seine Ausgabe hier einfuegen. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
             <p class="notice">Vor dem Senden pruefen: keine Passwoerter, Tokens, Kundendaten, vertraulichen Quelltexte oder andere nicht freigegebene Informationen einfuegen.</p>
 
             <form id="command-response-form">
-                <label for="upload-pin">Upload-PIN</label>
-                <input id="upload-pin" type="password" required autocomplete="off">
-                <p>Der PIN bleibt fuer weitere Rueckmeldungen gueltig, bis er bewusst geaendert wird.</p>
-
                 <label for="executed-command">Ausgefuehrter Befehl</label>
                 <textarea id="executed-command" maxlength="20000" required placeholder="Befehl hier einfuegen oder oben auf 'Fuer Antwort uebernehmen' klicken."></textarea>
 
