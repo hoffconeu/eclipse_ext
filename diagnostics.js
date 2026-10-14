@@ -30,7 +30,7 @@ form.addEventListener('submit', async (event) => {
         const response = await fetch(apiUrl, {
             method: 'POST',
             body: new FormData(form),
-            credentials: 'omit',
+            credentials: 'same-origin',
         });
         const result = await response.json().catch(() => ({}));
 
