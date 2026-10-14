@@ -13,7 +13,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <tycho.version>4.0.13</tycho.version>
+        <tycho.version>5.0.4</tycho.version>
     </properties>
 
     <modules>
@@ -24,8 +24,8 @@
 
     <repositories>
         <repository>
-            <id>eclipse-2023-12</id>
-            <url>https://download.eclipse.org/releases/2023-12</url>
+            <id>eclipse-2026-06</id>
+            <url>https://download.eclipse.org/releases/2026-06</url>
             <layout>p2</layout>
         </repository>
     </repositories>

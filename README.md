@@ -7,12 +7,14 @@ Der erste Meilenstein fuegt unter `Help` den Befehl `OJE Hello World` hinzu.
 
 - JDK 21 fuer den Server-Build
 - Maven Wrapper (im Projekt enthalten; laedt Maven 3.9.16 reproduzierbar)
-- Eclipse mit Java 17 oder neuer fuer die Installation
+- Eclipse-2026-06-Release-Repository als Build-Zielplattform
+- Eclipse 2026-06 mit Java 21 oder neuer fuer die Installation
 
 ## Bauen
 
 ```bash
 ./mvnw clean verify
+./scripts/audit-p2-repository.sh
 ```
 
 Das fertige p2-Repository entsteht unter:
@@ -20,6 +22,10 @@ Das fertige p2-Repository entsteht unter:
 ```text
 releng/com.oje.eclipse.hello.repository/target/repository/
 ```
+
+Der Repository-Audit erlaubt dort ausschliesslich das OJE-Plug-in und sein
+Feature. Insbesondere duerfen keine Eclipse-, SAP- oder ASM-Bibliotheken in
+die veroeffentlichte Update-Site gelangen.
 
 ## Update-Site
 
@@ -46,8 +52,8 @@ und in Eclipse ueber `Add...` -> `Archive...` ausgewaehlt werden:
 https://raw.githubusercontent.com/hoffconeu/eclipse_ext/gh-pages/oje-eclipse-update-site.zip
 ```
 
-Freigegebene Fehlermeldungen, Logs und Screenshots koennen ueber den
-PIN-geschuetzten Diagnosebereich gesendet werden:
+Freigegebene Fehlermeldungen, Logs und Screenshots koennen ueber den durch
+Cloudflare Access geschuetzten Diagnosebereich gesendet werden:
 
 ```text
 https://eclipse-ext.pages.dev/diagnostics
@@ -88,8 +94,11 @@ bleibt oeffentlich. Zugangsdaten gehoeren nicht in Git.
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
 2. `https://eclipse-ext.pages.dev/repository/` als Software-Site hinzufuegen.
-3. `OJE Eclipse Extension` installieren und Eclipse neu starten.
-4. `Help` → `OJE Hello World` ausfuehren.
+3. `Contact all update sites during install to find required software`
+   deaktivieren, damit Eclipse keine Plattformpakete aus anderen Update-Sites
+   mit der bestehenden Installation vermischt.
+4. `OJE Eclipse Extension` installieren und Eclipse neu starten.
+5. `Help` → `OJE Hello World` ausfuehren.
 
 Das Plug-in ist derzeit nicht kryptografisch signiert. Eclipse kann deshalb
 waehrend der Installation eine Warnung zu nicht signiertem Inhalt anzeigen.
