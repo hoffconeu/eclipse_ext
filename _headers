@@ -10,3 +10,12 @@
 
 /repository/artifacts.jar
     Cache-Control: no-cache, no-store, must-revalidate
+
+/commands
+    Cache-Control: no-cache, no-store, must-revalidate
+
+/commands.html
+    Cache-Control: no-cache, no-store, must-revalidate
+
+/commands.js
+    Cache-Control: no-cache, no-store, must-revalidate
