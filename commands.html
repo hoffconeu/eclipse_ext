@@ -13,6 +13,7 @@
         .card { padding: clamp(1.25rem, 5vw, 2rem); border: 1px solid #263a5b; border-radius: 18px; background: #111c30; box-shadow: 0 24px 80px #0006; }
         h1 { margin: .3rem 0 1rem; font-size: clamp(2rem, 7vw, 3.2rem); line-height: 1.05; }
         h2 { margin: 2rem 0 .45rem; font-size: 1.2rem; }
+        h3 { margin: 1.4rem 0 .4rem; font-size: 1.05rem; }
         p { color: #b9c9e5; line-height: 1.6; }
         a { color: #7dd3fc; }
         .eyebrow { margin: 0; color: #86efac; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
@@ -46,6 +47,14 @@
         <p class="eyebrow">Zum Kopieren</p>
         <h1>Eclipse-Befehle</h1>
         <p>Hier stehen die aktuelle Eclipse-Anleitung und bei Bedarf die bisherigen PowerShell-Befehle.</p>
+
+        <section aria-labelledby="live-commands-heading">
+            <h2 id="live-commands-heading">Aktuelle Befehle</h2>
+            <p>Neue Befehle erscheinen hier automatisch innerhalb von etwa 15 Sekunden. Du kannst die Seite dabei offen lassen.</p>
+            <p id="live-commands-status" class="status" role="status" aria-live="polite">Befehle werden geladen …</p>
+            <div id="live-commands-list"></div>
+        </section>
+        <p id="copy-status" class="status success" role="status" aria-live="polite"></p>
 
         <section aria-labelledby="install-heading">
             <h2 id="install-heading">Jetzt testen: direkt in Eclipse installieren</h2>
@@ -131,8 +140,6 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
         </section>
         </details>
 
-        <p id="copy-status" class="status success" role="status" aria-live="polite"></p>
-
         <section aria-labelledby="response-heading">
             <h2 id="response-heading">Ausgabe sicher zuruecksenden</h2>
             <p>Hier kannst du die Meldung aus Eclipse oder die Ausgabe eines ausgefuehrten Befehls senden. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
@@ -156,6 +163,6 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
         <footer>Zuletzt aktualisiert: 14.10.2026</footer>
     </div>
 </main>
-<script src="commands.js?v=20261014-install-guide" defer></script>
+<script src="commands.js?v=20261014-live-board" defer></script>
 </body>
 </html>
