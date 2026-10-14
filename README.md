@@ -7,12 +7,17 @@ geoeffneten ABAP-Editor Quelltext markieren und den Befehl waehlen. Er zeigt
 nur Editortitel und Laenge der Markierung an. Ohne Markierung wird kein ganzes
 Objekt erfasst. Es findet weder ein Upload noch eine Aenderung in SAP statt.
 Der Befehl dient zunaechst dazu, die ADT-Editor-Kompatibilitaet zu pruefen.
+Version 1.0.3 ergaenzt `OJE Verschluesselungstest (nur Testtext)`. Dieser
+Befehl verschluesselt ausschliesslich einen synthetischen Testmarker, kopiert
+das JWE in die Zwischenablage und zeigt die Test-ID an. Ueber die geschuetzte
+Befehlsseite kann das JWE gesendet und auf dem Server mit dem separaten
+Testschluessel geprueft werden. Der Editor wird nicht ausgelesen.
 
 Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
 automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Eine
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung und ein
 passender Python-Entschluesseler sind mit synthetischen Daten getestet, aber
-noch mit keinem UI-Befehl oder Transport verbunden. Das Sicherheitskonzept
+noch nicht mit einem allgemeinen ABAP-Transport verbunden. Das Sicherheitskonzept
 steht in [docs/SECURE_ABAP_EXCHANGE.md](docs/SECURE_ABAP_EXCHANGE.md).
 
 ## Voraussetzungen

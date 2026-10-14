@@ -1,0 +1,21 @@
+OJE 1.0.3: erster Ende-zu-Ende-Verschluesselungstest (nur Testtext)
+
+1. In Eclipse Help > Install New Software... oeffnen und nur
+   https://eclipse-ext.pages.dev/repository/ als Quelle verwenden.
+2. "Contact all update sites during install to find required software"
+   deaktivieren. In Install Details muss nur OJE Eclipse Extension 1.0.3
+   stehen. Bei ASM, Jetty, EMF oder anderen Plattformpaketen abbrechen.
+3. Nach dem Neustart Help > OJE Verschluesselungstest (nur Testtext) waehlen.
+   Es muss kein ABAP-Editor geoeffnet sein. Die Erweiterung liest keinen
+   Editorinhalt und kopiert nur einen verschluesselten, festen Testmarker.
+4. Auf dieser geschuetzten Seite im Antwortformular als Aktion
+   "OJE Verschluesselungstest 1.0.3" eintragen und im Feld "Ausgabe"
+   den Inhalt der Zwischenablage einfuegen (Strg+V). Das ist ein JWE-Text
+   mit fuenf durch Punkte getrennten Abschnitten. Bitte sonst nichts
+   in dieses Feld schreiben und keine echten ABAP-Quellen einfuegen.
+5. Senden und mir die Vorgangsnummer sowie die Test-ID aus dem Eclipse-
+   Dialog nennen. Ich pruefe serverseitig, ob genau diese Test-ID aus dem
+   verschluesselten Marker entschluesselt werden kann.
+
+Der Test verwendet ausschliesslich synthetische Daten. Es gibt keine
+automatische SAP-Aenderung und keinen allgemeinen ABAP-Upload.

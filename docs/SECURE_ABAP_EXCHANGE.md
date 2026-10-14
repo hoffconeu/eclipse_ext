@@ -5,8 +5,11 @@
 Die Erweiterung soll nur bewusst markierten ABAP-Text einlesen und spaeter
 Vorschlaege anzeigen. Sie soll nichts automatisch nach SAP zurueckschreiben.
 Version 1.0.2 prueft ausschliesslich lokal, ob die Editor-Auswahl erkannt wird.
-Der mitgelieferte JWE-Writer wird nicht vom UI aufgerufen. Es gibt noch keinen
-ABAP-Upload-Endpunkt und keine produktive Schluesselkonfiguration.
+Version 1.0.3 nutzt den JWE-Writer nur fuer einen fest eingebauten,
+synthetischen Testmarker. Der Marker wird verschluesselt in die Zwischenablage
+kopiert; der Nutzer sendet ihn bewusst ueber die Access-geschuetzte
+Befehlsseite. Es gibt weiterhin keinen ABAP-Upload-Endpunkt und keine
+produktive Schluesselkonfiguration.
 
 ## Implementierter Kryptobaustein
 
@@ -25,10 +28,15 @@ ABAP-Upload-Endpunkt und keine produktive Schluesselkonfiguration.
   entschluesselt wird. Der Aufrufer muss den privaten Schluessel geschuetzt
   bereitstellen, den Sender authentifizieren und empfangene Daten begrenzen.
 
-Die Funktionen lesen oder speichern selbst keine Schluesseldateien und
-senden keine Netzwerkanfragen. Es existiert kein produktiver privater
-Schluessel im Repository. Serverseitig ist das Python-Paket `cryptography`
-erforderlich; die Routine wird noch von keinem Web-Endpunkt aufgerufen.
+Die Kryptofunktionen selbst lesen oder speichern keine Schluesseldateien und
+senden keine Netzwerkanfragen. Das 1.0.3-Plug-in enthaelt nur einen
+oeffentlichen **Test**schluessel; der zugehoerige private Schluessel liegt mit
+Dateimodus 0600 ausserhalb von Git und Webroot auf dem Server. Es existiert
+kein produktiver privater Schluessel im Repository. Serverseitig ist das
+Python-Paket `cryptography` erforderlich; ein separater Pruefbefehl
+entschluesselt aus einer Access-geschuetzten Rueckmeldung nur den Testmarker
+und gibt lediglich dessen UUID aus. Kein Web-Endpunkt entschluesselt beliebige
+Inhalte automatisch.
 
 Kompatibilitaets- und Negativtests mit kurzlebigen Testschluesseln:
 
@@ -59,8 +67,10 @@ Unternehmensdaten fehlen deshalb noch:
    einen Eclipse-HTTP-Client. Keine langlebigen Service-Tokens im Plug-in.
 3. Ein begrenzter, protokollierter Empfang mit festgelegter Aufbewahrung und
    Loeschung sowie ein sicherer, verschluesselter Antwortkanal.
-4. Ein Ende-zu-Ende-Test der kuenftigen **Transportstrecke** mit synthetischen
-   Daten. Die reine Java/Python-Kryptokompatibilitaet und Ablehnung
+4. Ein Ende-zu-Ende-Test der kuenftigen **allgemeinen ABAP-Transportstrecke**.
+   Der erste Test ueber Eclipse-Zwischenablage und die bestehende
+   Access-geschuetzte Rueckmeldung transportiert ausschliesslich einen
+   synthetischen Marker. Java/Python-Kryptokompatibilitaet und Ablehnung
    veraenderter Nachrichten und falscher Schluessel sind bereits getestet.
 
 Bis diese Punkte geklaert und geprueft sind, keine echten ABAP-Quellen ueber

@@ -13,6 +13,10 @@
             id="com.oje.eclipse.hello.commands.checkSelection"
             categoryId="com.oje.eclipse.hello.commands.category"
             name="ABAP-Auswahl lokal pruefen"/>
+        <command
+            id="com.oje.eclipse.hello.commands.cryptoTest"
+            categoryId="com.oje.eclipse.hello.commands.category"
+            name="Verschluesselung mit Testtext pruefen"/>
     </extension>
 
     <extension point="org.eclipse.ui.handlers">
@@ -22,6 +26,9 @@
         <handler
             commandId="com.oje.eclipse.hello.commands.checkSelection"
             class="com.oje.eclipse.hello.handlers.SourceSelectionHandler"/>
+        <handler
+            commandId="com.oje.eclipse.hello.commands.cryptoTest"
+            class="com.oje.eclipse.hello.handlers.CryptoTestHandler"/>
     </extension>
 
     <extension point="org.eclipse.ui.menus">
@@ -33,6 +40,10 @@
             <command
                 commandId="com.oje.eclipse.hello.commands.checkSelection"
                 label="OJE ABAP-Auswahl pruefen (lokal)"
+                style="push"/>
+            <command
+                commandId="com.oje.eclipse.hello.commands.cryptoTest"
+                label="OJE Verschluesselungstest (nur Testtext)"
                 style="push"/>
         </menuContribution>
         <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
