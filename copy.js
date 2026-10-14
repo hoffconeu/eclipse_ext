@@ -2,6 +2,8 @@ const copyButton = document.querySelector('#copy-repository');
 const repositoryUrl = document.querySelector('#repository-url');
 const copyStatus = document.querySelector('#copy-status');
 
+repositoryUrl.value = new URL('repository/', document.baseURI).href;
+
 copyButton.addEventListener('click', async () => {
     repositoryUrl.select();
     repositoryUrl.setSelectionRange(0, repositoryUrl.value.length);
