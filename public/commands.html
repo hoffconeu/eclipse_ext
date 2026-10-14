@@ -17,6 +17,10 @@
         a { color: #7dd3fc; }
         .eyebrow { margin: 0; color: #86efac; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
         .notice { padding: .9rem 1rem; border-left: 4px solid #fbbf24; background: #2b2413; color: #fde68a; }
+        ol { padding-left: 1.5rem; color: #b9c9e5; line-height: 1.7; }
+        li { margin: .45rem 0; }
+        details { margin-top: 2rem; padding: 1rem; border: 1px solid #36547f; border-radius: 12px; }
+        summary { cursor: pointer; font-weight: 700; }
         .command { margin-top: .75rem; overflow: hidden; border: 1px solid #36547f; border-radius: 12px; background: #060d18; }
         pre { min-height: 4rem; margin: 0; padding: 1rem; overflow-x: auto; color: #bae6fd; font: 500 .95rem/1.65 Consolas, "Courier New", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
         .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; padding: .65rem; border-top: 1px solid #263a5b; }
@@ -41,12 +45,33 @@
         <p><a href="./">← Zurueck zur Eclipse-Seite</a></p>
         <p class="eyebrow">Zum Kopieren</p>
         <h1>Eclipse-Befehle</h1>
-        <p>Hier stelle ich dir die jeweils aktuellen Befehle bereit. In Windows bitte <strong>PowerShell</strong> oeffnen, den Block kopieren, einfuegen und mit Enter ausfuehren.</p>
+        <p>Hier stehen die aktuelle Eclipse-Anleitung und bei Bedarf die bisherigen PowerShell-Befehle.</p>
 
-        <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl sichert <code>bundles.info</code>, gleicht nur die ASM-Eintraege mit dem konsistenten p2-Profilstand 9.9.1 ab und startet Eclipse einmal mit bereinigtem Resolver-Cache. Workspace und JAR-Dateien werden nicht geloescht.</p>
+        <section aria-labelledby="install-heading">
+            <h2 id="install-heading">Jetzt testen: direkt in Eclipse installieren</h2>
+            <p>Die Update-Site in Eclipse eintragen. Ein manueller JAR-Download ist dafuer nicht erforderlich.</p>
+            <div class="command">
+                <pre id="update-site-url">https://eclipse-ext.pages.dev/repository/</pre>
+                <div class="actions">
+                    <button type="button" data-copy-target="update-site-url">Adresse kopieren</button>
+                </div>
+            </div>
+            <ol>
+                <li>In Eclipse <strong>Help → Install New Software…</strong> oeffnen.</li>
+                <li>Bei <strong>Work with</strong> auf <strong>Add…</strong> klicken. Als Name <code>OJE Extension</code> und als Location die kopierte Adresse eintragen.</li>
+                <li><strong>Contact all update sites during install to find required software</strong> deaktivieren.</li>
+                <li><strong>OJE Eclipse Extension</strong> auswaehlen und auf <strong>Next</strong> klicken.</li>
+                <li>Vor dem Bestaetigen pruefen, ob nur OJE-Komponenten angezeigt werden. Falls Eclipse-, ASM- oder SAP-Komponenten hinzukommen: abbrechen und einen <a href="diagnostics.html">Screenshot senden</a>.</li>
+                <li>Die Installation abschliessen, Eclipse neu starten und <strong>Help → OJE Hello World</strong> pruefen.</li>
+            </ol>
+            <p>Falls Eclipse meldet, dass die Extension bereits installiert ist, die Meldung unten als Rueckmeldung senden. Die bestehende Extension nicht vorher entfernen.</p>
+        </section>
 
+        <details>
+            <summary>Abgeschlossener Schritt: ASM-Reparaturbefehl anzeigen</summary>
+            <p class="notice">Nur bei einem erneuten ASM-Startfehler verwenden. Eclipse vorher vollstaendig schliessen. Der Befehl sichert <code>bundles.info</code>, gleicht die ASM-Eintraege mit dem konsistenten p2-Profilstand 9.9.1 ab und startet Eclipse mit bereinigtem Resolver-Cache.</p>
         <section aria-labelledby="profile-history-heading">
-            <h2 id="profile-history-heading">4. ASM-Konfiguration reparieren</h2>
+            <h2 id="profile-history-heading">ASM-Konfiguration reparieren</h2>
             <p>Nach dem Start pruefen, ob Eclipse wieder oeffnet. Die PowerShell-Ausgabe und das Ergebnis danach bitte an mich schicken.</p>
             <div class="command">
                 <pre id="profile-history-command">$installRoot = "$env:USERPROFILE\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
@@ -104,20 +129,21 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
                 </div>
             </div>
         </section>
+        </details>
 
         <p id="copy-status" class="status success" role="status" aria-live="polite"></p>
 
         <section aria-labelledby="response-heading">
             <h2 id="response-heading">Ausgabe sicher zuruecksenden</h2>
-            <p>Den ausgefuehrten Befehl und seine Ausgabe hier einfuegen. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
+            <p>Hier kannst du die Meldung aus Eclipse oder die Ausgabe eines ausgefuehrten Befehls senden. Die Seite fuehrt selbst nichts aus. Deine Cloudflare-Access-Anmeldung schuetzt die Uebertragung. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
             <p class="notice">Vor dem Senden pruefen: keine Passwoerter, Tokens, Kundendaten, vertraulichen Quelltexte oder andere nicht freigegebene Informationen einfuegen.</p>
 
             <form id="command-response-form">
-                <label for="executed-command">Ausgefuehrter Befehl</label>
-                <textarea id="executed-command" maxlength="20000" required placeholder="Befehl hier einfuegen oder oben auf 'Fuer Antwort uebernehmen' klicken."></textarea>
+                <label for="executed-command">Aktion in Eclipse oder ausgefuehrter Befehl</label>
+                <textarea id="executed-command" maxlength="20000" required placeholder="Zum Beispiel: Help → Install New Software; oder ausgefuehrten Befehl einfuegen."></textarea>
 
-                <label for="command-output">Ausgabe oder Fehlermeldung</label>
-                <textarea id="command-output" maxlength="75000" required placeholder="Komplette Ausgabe aus PowerShell hier einfuegen."></textarea>
+                <label for="command-output">Angezeigte Meldung oder Ausgabe</label>
+                <textarea id="command-output" maxlength="75000" required placeholder="Meldung aus Eclipse oder Ausgabe aus PowerShell einfuegen."></textarea>
 
                 <label for="response-note">Optionale Notiz</label>
                 <textarea id="response-note" maxlength="4000" placeholder="Zum Beispiel: Was hast du direkt davor gemacht?"></textarea>
@@ -130,6 +156,6 @@ Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-cle
         <footer>Zuletzt aktualisiert: 14.10.2026</footer>
     </div>
 </main>
-<script src="commands.js?v=20261014-access-cookie" defer></script>
+<script src="commands.js?v=20261014-install-guide" defer></script>
 </body>
 </html>

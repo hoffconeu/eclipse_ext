@@ -15,7 +15,7 @@ document.querySelectorAll('[data-copy-target]').forEach((button) => {
 
         try {
             await navigator.clipboard.writeText(text);
-            copyStatus.textContent = 'Befehl wurde kopiert.';
+            copyStatus.textContent = 'Text wurde kopiert.';
             button.textContent = 'Kopiert!';
         } catch {
             const selection = window.getSelection();
@@ -23,7 +23,7 @@ document.querySelectorAll('[data-copy-target]').forEach((button) => {
             range.selectNodeContents(command);
             selection.removeAllRanges();
             selection.addRange(range);
-            copyStatus.textContent = 'Befehl ist markiert. Bitte mit Strg+C kopieren.';
+            copyStatus.textContent = 'Text ist markiert. Bitte mit Strg+C kopieren.';
         }
     });
 });
@@ -47,7 +47,7 @@ responseForm.addEventListener('submit', async (event) => {
     const message = [
         'Quelle: Eclipse-Befehlsseite',
         '',
-        'Ausgefuehrter Befehl:',
+        'Aktion oder ausgefuehrter Befehl:',
         command,
         '',
         'Ausgabe:',
