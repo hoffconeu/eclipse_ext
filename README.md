@@ -128,6 +128,14 @@ Cloudflare-Access-Schutz fuer `/commands*`.
 4. `OJE Eclipse Extension` installieren und Eclipse neu starten.
 5. `Help` → `OJE Hello World` ausfuehren.
 
+Fuer den Update-Test auf Version 1.0.1 denselben Repository-Eintrag erneut
+unter `Help` → `Install New Software...` waehlen und den Haken bei `Contact
+all update sites during install to find required software` deaktiviert lassen.
+Vor dem Abschluss in `Install Details` pruefen, dass keine Eclipse-, ASM-,
+Jetty- oder EMF-Plattformpakete zur Installation vorgesehen sind. Nach dem
+Neustart zeigt `Help` → `OJE Hello World` den Dialogtitel
+`OJE Eclipse Extension – Update-Test v1.0.1` und den neuen Meldungstext.
+
 Das Plug-in ist derzeit nicht kryptografisch signiert. Eclipse kann deshalb
 waehrend der Installation eine Warnung zu nicht signiertem Inhalt anzeigen.
 

@@ -12,8 +12,8 @@ public final class HelloHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         MessageDialog.openInformation(
             HandlerUtil.getActiveShell(event),
-            "OJE Eclipse Extension",
-            "Hello World! Die OJE Eclipse Extension wurde erfolgreich installiert."
+            "OJE Eclipse Extension – Update-Test v1.0.1",
+            "Update-Test v1.0.1: Diese Meldung stammt aus der neuen OJE Eclipse Extension."
         );
         return null;
     }
