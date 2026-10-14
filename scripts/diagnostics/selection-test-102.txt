@@ -1,0 +1,16 @@
+OJE 1.0.2: lokale ADT-Auswahl pruefen
+
+1. Eclipse oeffnen: Help > Check for Updates oder Help > Install New Software...
+2. Als Quelle nur https://eclipse-ext.pages.dev/repository/ verwenden.
+3. "Contact all update sites during install to find required software" deaktivieren.
+4. In den Install Details pruefen: nur OJE Eclipse Extension 1.0.2.
+   Falls ASM, Jetty, EMF oder andere Eclipse-Plattformpakete erscheinen:
+   abbrechen und die Liste ueber die geschuetzte Rueckmeldung melden.
+5. Nach Installation und Neustart einen ABAP-Editor oeffnen und nur einen
+   harmlosen kurzen Text markieren (keinen echten Quelltext einsenden).
+6. Help > OJE ABAP-Auswahl pruefen (lokal) anklicken.
+7. Bitte nur melden, ob der Dialog den Editortitel und die Laenge der
+   Markierung anzeigt, oder die Fehlermeldung/den Dialogtext zuruecksenden.
+
+Dieser Befehl uebertraegt weder Quelltext noch aendert er etwas in SAP.
+Die geplante Ende-zu-Ende-Verschluesselung ist noch nicht aktiv.
