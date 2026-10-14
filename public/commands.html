@@ -43,42 +43,61 @@
         <h1>Eclipse-Befehle</h1>
         <p>Hier stelle ich dir die jeweils aktuellen Befehle bereit. In Windows bitte <strong>PowerShell</strong> oeffnen, den Block kopieren, einfuegen und mit Enter ausfuehren.</p>
 
-        <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl liest nur die vorhandenen p2-Profilsicherungen und veraendert weder Eclipse noch deinen Workspace.</p>
+        <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl sichert <code>bundles.info</code>, gleicht nur die ASM-Eintraege mit dem konsistenten p2-Profilstand 9.9.1 ab und startet Eclipse einmal mit bereinigtem Resolver-Cache. Workspace und JAR-Dateien werden nicht geloescht.</p>
 
         <section aria-labelledby="profile-history-heading">
-            <h2 id="profile-history-heading">3. p2-Wiederherstellungspunkte vergleichen</h2>
-            <p>Die Ausgabe danach bitte komplett an mich schicken.</p>
+            <h2 id="profile-history-heading">4. ASM-Konfiguration reparieren</h2>
+            <p>Nach dem Start pruefen, ob Eclipse wieder oeffnet. Die PowerShell-Ausgabe und das Ergebnis danach bitte an mich schicken.</p>
             <div class="command">
-                <pre id="profile-history-command">$profileDir = "$env:USERPROFILE\.p2\org.eclipse.equinox.p2.engine\profileRegistry\C__Users_X603357_eclipse-abap-bsh-2026-06_eclipse-abap-bsh.profile"
+                <pre id="profile-history-command">$installRoot = "$env:USERPROFILE\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
+$poolRoot = "$env:USERPROFILE\.p2\pool\plugins"
+$bundlesInfo = "$installRoot\configuration\org.eclipse.equinox.simpleconfigurator\bundles.info"
+$asmBundles = @(
+    "org.objectweb.asm_9.9.1.jar",
+    "org.objectweb.asm.commons_9.9.1.jar",
+    "org.objectweb.asm.tree_9.9.1.jar",
+    "org.objectweb.asm.tree.analysis_9.9.1.jar",
+    "org.objectweb.asm.util_9.9.1.jar"
+)
 
-Get-ChildItem -LiteralPath $profileDir -Filter "*.profile.gz" -File |
-    Sort-Object Name |
-    ForEach-Object {
-        "=== Profilstand $($_.BaseName) | $($_.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss')) ==="
+if (Get-Process -Name "eclipse", "eclipsec" -ErrorAction SilentlyContinue) {
+    throw "Eclipse laeuft noch. Bitte Eclipse vollstaendig beenden und den Befehl erneut ausfuehren."
+}
 
-        $fileStream = [System.IO.File]::OpenRead($_.FullName)
-        $gzipStream = [System.IO.Compression.GZipStream]::new(
-            $fileStream,
-            [System.IO.Compression.CompressionMode]::Decompress
-        )
-        $reader = [System.IO.StreamReader]::new($gzipStream)
+$missingBundles = $asmBundles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $poolRoot $_) -PathType Leaf) }
+if ($missingBundles) {
+    throw "Reparatur abgebrochen. Fehlende ASM-Dateien: $($missingBundles -join ', ')"
+}
+if (-not (Test-Path -LiteralPath $bundlesInfo -PathType Leaf)) {
+    throw "Reparatur abgebrochen. bundles.info wurde nicht gefunden: $bundlesInfo"
+}
 
-        try {
-            [xml]$profile = $reader.ReadToEnd()
-            $profile.profile.units.unit |
-                Where-Object {
-                    $_.id -like "org.objectweb.asm*" -or
-                    ($_.id -like "com.sap.adt*" -and $_.id -like "*.feature.group")
-                } |
-                Sort-Object id, version |
-                ForEach-Object { "$($_.id) | $($_.version)" }
-        }
-        finally {
-            $reader.Dispose()
-            $gzipStream.Dispose()
-            $fileStream.Dispose()
-        }
-    }</pre>
+$backup = "$bundlesInfo.before-asm-repair-$(Get-Date -Format 'yyyyMMdd-HHmmss').bak"
+Copy-Item -LiteralPath $bundlesInfo -Destination $backup -ErrorAction Stop
+
+$poolUri = "file:/" + ($poolRoot -replace "\\", "/") + "/"
+$originalLines = [System.IO.File]::ReadAllLines($bundlesInfo)
+$retainedLines = $originalLines | Where-Object { $_ -notmatch '^org\.objectweb\.asm(?:,|\.)' }
+$asmLines = @(
+    "org.objectweb.asm,9.9.1,${poolUri}org.objectweb.asm_9.9.1.jar,4,false",
+    "org.objectweb.asm.commons,9.9.1,${poolUri}org.objectweb.asm.commons_9.9.1.jar,4,false",
+    "org.objectweb.asm.tree,9.9.1,${poolUri}org.objectweb.asm.tree_9.9.1.jar,4,false",
+    "org.objectweb.asm.tree.analysis,9.9.1,${poolUri}org.objectweb.asm.tree.analysis_9.9.1.jar,4,false",
+    "org.objectweb.asm.util,9.9.1,${poolUri}org.objectweb.asm.util_9.9.1.jar,4,false"
+)
+
+[System.IO.File]::WriteAllLines(
+    $bundlesInfo,
+    [string[]]($retainedLines + $asmLines),
+    [System.Text.UTF8Encoding]::new($false)
+)
+
+"Sicherung: $backup"
+"Aktive ASM-Eintraege:"
+Select-String -LiteralPath $bundlesInfo -Pattern '^org\.objectweb\.asm(?:,|\.)' |
+    ForEach-Object { $_.Line }
+
+Start-Process -FilePath "$installRoot\eclipse.exe" -ArgumentList "-clean", "-clearPersistedState"</pre>
                 <div class="actions">
                     <button class="secondary" type="button" data-use-target="profile-history-command">Fuer Antwort uebernehmen</button>
                     <button type="button" data-copy-target="profile-history-command">Befehl kopieren</button>
