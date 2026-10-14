@@ -54,7 +54,9 @@ https://eclipse-ext.pages.dev/diagnostics
 ```
 
 Aktuelle Diagnose- und Wiederherstellungsbefehle fuer den Zielrechner stehen
-mit Kopierfunktion unter:
+mit Kopierfunktion unter. Auf derselben Seite koennen der ausgefuehrte Befehl
+und seine Ausgabe PIN-geschuetzt an den Diagnose-Posteingang zurueckgesendet
+werden:
 
 ```text
 https://eclipse-ext.pages.dev/commands

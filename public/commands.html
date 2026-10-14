@@ -19,10 +19,19 @@
         .notice { padding: .9rem 1rem; border-left: 4px solid #fbbf24; background: #2b2413; color: #fde68a; }
         .command { margin-top: .75rem; overflow: hidden; border: 1px solid #36547f; border-radius: 12px; background: #060d18; }
         pre { min-height: 4rem; margin: 0; padding: 1rem; overflow-x: auto; color: #bae6fd; font: 500 .95rem/1.65 Consolas, "Courier New", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
-        .actions { display: flex; justify-content: flex-end; padding: .65rem; border-top: 1px solid #263a5b; }
+        .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; padding: .65rem; border-top: 1px solid #263a5b; }
         button { padding: .7rem 1rem; border: 0; border-radius: 8px; background: #38bdf8; color: #082f49; font: inherit; font-weight: 800; cursor: pointer; }
         button:hover { background: #7dd3fc; }
-        #copy-status { min-height: 1.5em; margin: 1rem 0 0; color: #86efac; font-weight: 700; }
+        button.secondary { border: 1px solid #42618d; background: #172844; color: #bae6fd; }
+        button.secondary:hover { background: #223b63; }
+        button:disabled { cursor: wait; opacity: .65; }
+        label { display: block; margin: 1rem 0 .4rem; color: #d7e4f8; font-weight: 750; }
+        input, textarea { width: 100%; padding: .8rem; border: 1px solid #42618d; border-radius: 8px; background: #060d18; color: #e5eefc; font: inherit; }
+        textarea { min-height: 8rem; resize: vertical; font-family: Consolas, "Courier New", monospace; }
+        #command-output { min-height: 16rem; }
+        .status { min-height: 1.5em; margin: 1rem 0 0; font-weight: 700; }
+        .success { color: #86efac; }
+        .error { color: #fca5a5; }
         footer { margin-top: 2rem; color: #7f93b5; font-size: .9rem; }
     </style>
 </head>
@@ -43,12 +52,37 @@
                 <pre id="profile-history-command">cd /d "%USERPROFILE%\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
 dir /s /b p2\org.eclipse.equinox.p2.engine\profileRegistry\*.profile.gz</pre>
                 <div class="actions">
+                    <button class="secondary" type="button" data-use-target="profile-history-command">Fuer Antwort uebernehmen</button>
                     <button type="button" data-copy-target="profile-history-command">Befehl kopieren</button>
                 </div>
             </div>
         </section>
 
-        <p id="copy-status" role="status" aria-live="polite"></p>
+        <p id="copy-status" class="status success" role="status" aria-live="polite"></p>
+
+        <section aria-labelledby="response-heading">
+            <h2 id="response-heading">Ausgabe sicher zuruecksenden</h2>
+            <p>Den ausgefuehrten Befehl und seine Ausgabe hier einfuegen. Die Seite fuehrt selbst nichts aus. Nach dem Senden erhaeltst du eine Vorgangsnummer, ueber die ich die Rueckmeldung zuordnen kann.</p>
+            <p class="notice">Vor dem Senden pruefen: keine Passwoerter, Tokens, Kundendaten, vertraulichen Quelltexte oder andere nicht freigegebene Informationen einfuegen.</p>
+
+            <form id="command-response-form">
+                <label for="upload-pin">Upload-PIN</label>
+                <input id="upload-pin" type="password" required autocomplete="off">
+
+                <label for="executed-command">Ausgefuehrter Befehl</label>
+                <textarea id="executed-command" maxlength="20000" required placeholder="Befehl hier einfuegen oder oben auf 'Fuer Antwort uebernehmen' klicken."></textarea>
+
+                <label for="command-output">Ausgabe oder Fehlermeldung</label>
+                <textarea id="command-output" maxlength="75000" required placeholder="Komplette Ausgabe aus cmd.exe hier einfuegen."></textarea>
+
+                <label for="response-note">Optionale Notiz</label>
+                <textarea id="response-note" maxlength="4000" placeholder="Zum Beispiel: Was hast du direkt davor gemacht?"></textarea>
+
+                <button id="response-submit" type="submit">Antwort sicher senden</button>
+                <p id="response-status" class="status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+
         <footer>Zuletzt aktualisiert: 14.10.2026</footer>
     </div>
 </main>
