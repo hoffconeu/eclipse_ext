@@ -70,7 +70,7 @@ responseForm.addEventListener('submit', async (event) => {
         const response = await fetch(apiUrl, {
             method: 'POST',
             body,
-            credentials: 'omit',
+            credentials: 'same-origin',
         });
         const result = await response.json().catch(() => ({}));
 
