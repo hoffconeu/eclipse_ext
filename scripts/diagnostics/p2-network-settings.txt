@@ -1,0 +1,6 @@
+Bitte nur zwei Einstellungen ablesen und die Werte ueber die Befehlsseite senden. Nichts umstellen und keinen neuen Installationsversuch starten.
+
+1. Eclipse: Window > Preferences > General > Network Connections > Active Provider: Direct, Native oder Manual?
+2. Beim letzten Versuch unter Help > Install New Software: War "Contact all update sites during install to find required software" aktiviert oder deaktiviert? Falls unklar, bitte "unbekannt" schreiben.
+
+Keine Proxy-Adresse, Anmeldedaten oder Screenshots mit vertraulichen Angaben senden.
