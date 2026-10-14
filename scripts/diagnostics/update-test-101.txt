@@ -1,0 +1,12 @@
+Update-Test fuer OJE Eclipse Extension 1.0.1:
+
+1. Eclipse: Help > Install New Software...
+2. Bei "Work with" genau diese Update-Site waehlen:
+   https://eclipse-ext.pages.dev/repository/
+3. "Contact all update sites during install to find required software" DEAKTIVIERT lassen.
+4. "OJE Eclipse Extension" markieren und auf Next klicken.
+5. Bei "Install Details" pruefen: Nur OJE soll aktualisiert werden. Falls ASM, Jetty, EMF oder andere Eclipse-/SAP-Pakete auftauchen: Cancel und die Liste hier senden. In diesem Fall nicht installieren.
+6. Nur wenn der Plan sauber ist: Installation abschliessen und Eclipse neu starten.
+7. Help > OJE Hello World aufrufen. Der neue Dialog muss im Titel "Update-Test v1.0.1" und im Text "Diese Meldung stammt aus der neuen OJE Eclipse Extension" enthalten.
+
+Bitte Ergebnis ueber diese Seite senden. Falls Eclipse "bereits installiert" meldet oder kein Update anzeigt, diese Meldung senden; nicht andere Update-Sites aktivieren.
