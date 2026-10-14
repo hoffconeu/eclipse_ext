@@ -43,14 +43,31 @@
         <h1>Eclipse-Befehle</h1>
         <p>Hier stelle ich dir die jeweils aktuellen Befehle bereit. In Windows bitte <strong>PowerShell</strong> oeffnen, den Block kopieren, einfuegen und mit Enter ausfuehren.</p>
 
-        <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl liest nur die p2-Profilhistorie und veraendert weder Eclipse noch deinen Workspace.</p>
+        <p class="notice">Eclipse vorher vollstaendig schliessen. Der folgende Befehl liest nur Installationsdateien und veraendert weder Eclipse noch deinen Workspace.</p>
 
         <section aria-labelledby="profile-history-heading">
-            <h2 id="profile-history-heading">1. Verfuegbare Wiederherstellungspunkte anzeigen</h2>
+            <h2 id="profile-history-heading">1. ASM-Konflikt und p2-Profil lokalisieren</h2>
             <p>Die Ausgabe danach bitte komplett an mich schicken.</p>
             <div class="command">
-                <pre id="profile-history-command">Set-Location "$env:USERPROFILE\eclipse-abap-bsh-2026-06\eclipse-abap-bsh"
-Get-ChildItem -Path ".\p2\org.eclipse.equinox.p2.engine\profileRegistry" -Filter "*.profile.gz" -File -Recurse | Select-Object -ExpandProperty FullName</pre>
+                <pre id="profile-history-command">$searchRoot = "$env:USERPROFILE\eclipse-abap-bsh-2026-06"
+
+"=== ASM-Bundle-Dateien ==="
+Get-ChildItem -LiteralPath $searchRoot -Filter "org.objectweb.asm*.jar" -File -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object FullName |
+    ForEach-Object { $_.FullName }
+
+"=== ASM-Eintraege in bundles.info ==="
+Get-ChildItem -LiteralPath $searchRoot -Filter "bundles.info" -File -Recurse -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        "Datei: $($_.FullName)"
+        Select-String -LiteralPath $_.FullName -Pattern "org.objectweb.asm" |
+            ForEach-Object { $_.Line }
+    }
+
+"=== Gefundene p2-Profildateien ==="
+Get-ChildItem -LiteralPath $searchRoot -Filter "*.profile.gz" -File -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object FullName |
+    ForEach-Object { $_.FullName }</pre>
                 <div class="actions">
                     <button class="secondary" type="button" data-use-target="profile-history-command">Fuer Antwort uebernehmen</button>
                     <button type="button" data-copy-target="profile-history-command">Befehl kopieren</button>
