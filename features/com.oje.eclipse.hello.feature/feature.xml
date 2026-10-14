@@ -2,7 +2,7 @@
 <feature
     id="com.oje.eclipse.hello.feature"
     label="OJE Eclipse Extension"
-    version="1.0.3.qualifier"
+    version="1.0.4.qualifier"
     provider-name="oje.me">
 
     <description url="https://ext.oje.me/">

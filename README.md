@@ -13,6 +13,15 @@ das JWE in die Zwischenablage und zeigt die Test-ID an. Ueber die geschuetzte
 Befehlsseite kann das JWE gesendet und auf dem Server mit dem separaten
 Testschluessel geprueft werden. Der Editor wird nicht ausgelesen.
 
+Version 1.0.4 ergaenzt `OJE Teams-Popups pruefen (nur lokal)`. Der Befehl
+startet unter Windows fuer hoechstens 45 Sekunden die vorhandene PowerShell
+und prueft, ob neue Teams-Fenster fuer Testnachricht und Testanruf per
+Windows UI Automation sichtbar werden. Er meldet nur Fensteranzahl und
+generische Schaltflaechen-Merkmale; Titel, Namen und Nachrichtentexte werden
+nicht ausgegeben. Es wird nichts an Telegram oder einen Server gesendet.
+Erst wenn beide Ereignisse auf dem Zielrechner wiederholt eindeutig erkannt
+werden, wird die automatische Weiterleitung entwickelt.
+
 Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
 automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Eine
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung und ein

@@ -17,6 +17,10 @@
             id="com.oje.eclipse.hello.commands.cryptoTest"
             categoryId="com.oje.eclipse.hello.commands.category"
             name="Verschluesselung mit Testtext pruefen"/>
+        <command
+            id="com.oje.eclipse.hello.commands.teamsPopupProbe"
+            categoryId="com.oje.eclipse.hello.commands.category"
+            name="Teams-Popups lokal pruefen"/>
     </extension>
 
     <extension point="org.eclipse.ui.handlers">
@@ -29,6 +33,9 @@
         <handler
             commandId="com.oje.eclipse.hello.commands.cryptoTest"
             class="com.oje.eclipse.hello.handlers.CryptoTestHandler"/>
+        <handler
+            commandId="com.oje.eclipse.hello.commands.teamsPopupProbe"
+            class="com.oje.eclipse.hello.handlers.TeamsPopupProbeHandler"/>
     </extension>
 
     <extension point="org.eclipse.ui.menus">
@@ -44,6 +51,10 @@
             <command
                 commandId="com.oje.eclipse.hello.commands.cryptoTest"
                 label="OJE Verschluesselungstest (nur Testtext)"
+                style="push"/>
+            <command
+                commandId="com.oje.eclipse.hello.commands.teamsPopupProbe"
+                label="OJE Teams-Popups pruefen (nur lokal)"
                 style="push"/>
         </menuContribution>
         <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
