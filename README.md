@@ -26,8 +26,11 @@ releng/com.oje.eclipse.hello.repository/target/repository/
 Die derzeitige Update-Site lautet:
 
 ```text
-https://ext.oje.me/repository/
+https://eclipse-ext.pages.dev/repository/
 ```
+
+Die bisherige Origin-Adresse `https://ext.oje.me/repository/` bleibt als
+serverseitige Alternative bestehen.
 
 Als GitHub-basierte Alternative steht das gleiche p2-Repository unter dieser
 Adresse bereit:
@@ -47,20 +50,21 @@ Freigegebene Fehlermeldungen, Logs und Screenshots koennen ueber den
 PIN-geschuetzten Diagnosebereich gesendet werden:
 
 ```text
-https://hoffconeu.github.io/eclipse_ext/diagnostics.html
+https://eclipse-ext.pages.dev/diagnostics
 ```
 
 Aktuelle Diagnose- und Wiederherstellungsbefehle fuer den Zielrechner stehen
 mit Kopierfunktion unter:
 
 ```text
-https://ext.oje.me/commands.html
+https://eclipse-ext.pages.dev/commands
 ```
 
 ## Cloudflare Pages
 
-Der Branch `gh-pages` kann als statische Cloudflare-Pages-Anwendung betrieben
-werden. Empfohlene Einstellungen:
+Das Cloudflare-Pages-Projekt `eclipse-ext` wird unter
+`https://eclipse-ext.pages.dev/` betrieben. Deployment-Grundlage ist der
+Branch `gh-pages` mit folgenden Einstellungen:
 
 - Production Branch: `gh-pages`
 - Framework Preset: keines
@@ -69,14 +73,15 @@ werden. Empfohlene Einstellungen:
 
 Die Pages Function unter `/api/diagnostics` leitet Diagnose-Uploads
 serverseitig an das bestehende Backend weiter. Im Browser wird dadurch keine
-Backend-Domain verwendet. Im Pages-Projekt muss fuer Production die Variable
+Backend-Domain verwendet. Im Pages-Projekt ist fuer Production und Preview die
+Variable
 `DIAGNOSTICS_ORIGIN_URL` mit der vollstaendigen HTTPS-Adresse des bestehenden
-Diagnose-Endpunkts gesetzt werden. Zugangsdaten gehoeren nicht in Git.
+Diagnose-Endpunkts gesetzt. Zugangsdaten gehoeren nicht in Git.
 
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
-2. `https://ext.oje.me/repository/` als Software-Site hinzufuegen.
+2. `https://eclipse-ext.pages.dev/repository/` als Software-Site hinzufuegen.
 3. `OJE Eclipse Extension` installieren und Eclipse neu starten.
 4. `Help` → `OJE Hello World` ausfuehren.
 
