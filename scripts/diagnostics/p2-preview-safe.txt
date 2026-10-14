@@ -1,0 +1,10 @@
+Bitte jetzt nur den Installationsplan pruefen, noch nichts installieren:
+
+1. Eclipse: Help > Install New Software...
+2. Bei Work with ausschliesslich https://eclipse-ext.pages.dev/repository/ auswaehlen.
+3. Den Haken "Contact all update sites during install to find required software" entfernen.
+4. Nur "OJE Eclipse Extension" markieren und auf Next klicken.
+5. Im Schritt "Install Details" die komplette Liste unter "Items to be installed" kopieren oder als Screenshot senden. Besonders wichtig: Stehen dort ausser OJE noch org.objectweb.asm, Jetty, EMF oder andere Eclipse-Pakete?
+6. NICHT auf Finish klicken. Den Dialog danach mit Cancel schliessen.
+
+Bitte ausserdem mitteilen, ob der Haken in Schritt 3 vor dem Entfernen gesetzt war.
