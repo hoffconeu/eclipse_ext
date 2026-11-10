@@ -22,3 +22,15 @@
 
 /commands-feed
     Cache-Control: no-cache, no-store, must-revalidate
+
+/commands-chat
+    Cache-Control: no-store
+
+/commands-chat.html
+    Cache-Control: no-store
+
+/commands-chat.js
+    Cache-Control: no-store
+
+/commands-chat-api
+    Cache-Control: no-store

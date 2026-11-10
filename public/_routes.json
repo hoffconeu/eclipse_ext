@@ -1,5 +1,5 @@
 {
     "version": 1,
-    "include": ["/api/diagnostics", "/commands-feed"],
+    "include": ["/api/diagnostics", "/commands-feed", "/commands-chat-api"],
     "exclude": []
 }

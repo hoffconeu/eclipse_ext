@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Privater Chat · OJE</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0b1220; color: #e5eefc; }
+    .layout { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+    aside { padding: 1.5rem; background: #101a2c; border-right: 1px solid #2b3d5b; }
+    aside a { color: #93c5fd; text-decoration: none; }
+    aside p { color: #a9bbd5; font-size: .9rem; line-height: 1.5; }
+    main { display: flex; flex-direction: column; min-width: 0; max-height: 100vh; }
+    header { padding: 1rem 1.5rem; border-bottom: 1px solid #2b3d5b; display: flex; align-items: center; gap: 1rem; }
+    header h1 { margin: 0; font-size: 1.1rem; flex: 1; }
+    #status { color: #b9c9e5; font-size: .9rem; }
+    select, button, textarea { font: inherit; }
+    select, textarea { color: #e5eefc; background: #0a1425; border: 1px solid #405a7e; border-radius: 10px; }
+    select { padding: .55rem; max-width: 250px; }
+    button { padding: .7rem 1rem; color: #061c2e; background: #7dd3fc; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    button.secondary { color: #d7e8ff; background: #213753; }
+    #conversation { flex: 1; overflow-y: auto; width: min(840px, 100%); margin: 0 auto; padding: 2rem 1.2rem; }
+    .empty { margin: 20vh auto 0; max-width: 600px; text-align: center; color: #aebfd7; }
+    .message { margin: 1rem 0; padding: 1rem 1.2rem; border-radius: 15px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+    .user { background: #1a3656; margin-left: 12%; }
+    .assistant { background: #132238; margin-right: 12%; }
+    .message small { display: block; margin-bottom: .4rem; color: #a7c5e6; font-weight: 700; }
+    .composer { width: min(840px, 100%); margin: auto; padding: 1rem 1.2rem 1.5rem; }
+    textarea { display: block; width: 100%; min-height: 100px; max-height: 40vh; padding: .9rem; resize: vertical; }
+    .composer-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: .7rem; }
+    .hint { color: #92a7c5; font-size: .82rem; }
+    @media (max-width: 680px) { .layout { grid-template-columns: 1fr; } aside { display: none; } header { flex-wrap: wrap; } main { min-height: 100vh; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <a href="/commands">← Eclipse-Befehle</a>
+    <h2>Privater Chat</h2>
+    <p>Nur über deine Cloudflare-Access-Anmeldung erreichbar. Nachrichten bleiben während dieses Tabs im Browser; dieser Dienst speichert keinen Chatverlauf.</p>
+    <button id="new-chat" class="secondary" type="button">Neuer Chat</button>
+  </aside>
+  <main>
+    <header><h1>Privater Chat</h1><span id="status" role="status" aria-live="polite">Verbindung wird geprüft …</span><select id="model" aria-label="Modell" disabled></select></header>
+    <div id="conversation" role="log" aria-live="polite"><p class="empty">Schreib eine Nachricht oder füge Text ein. Noch nicht senden, wenn er vertrauliche Firmendaten enthält.</p></div>
+    <form id="form" class="composer">
+      <label for="prompt" class="hint">Nachricht</label>
+      <textarea id="prompt" placeholder="Nachricht eingeben oder Text einfügen …" required></textarea>
+      <div class="composer-row"><span class="hint">Enter sendet · Shift+Enter fügt eine Zeile ein</span><button id="send" type="submit" disabled>Senden</button></div>
+    </form>
+  </main>
+</div>
+<script src="/commands-chat.js" defer></script>
+</body>
+</html>

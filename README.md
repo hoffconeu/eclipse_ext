@@ -144,6 +144,16 @@ Die Pages Function unter `/commands-feed` holt die Befehlsliste serverseitig
 ueber denselben internen Schluessel. Der Pfad faellt unter den bestehenden
 Cloudflare-Access-Schutz fuer `/commands*`.
 
+Unter `/commands-chat` ist eine separate, Access-geschuetzte Chat-Oberflaeche
+vorbereitet. Ihr Same-Origin-Endpunkt `/commands-chat-api` leitet nur an den
+separaten Loopback-Dienst weiter. Nachrichten und Antworten werden nicht als
+Chatverlauf auf dem Server gespeichert. Der Dienst akzeptiert ausschliesslich
+ein serverseitiges Proxy-Secret; ChatGPT-Zugangsdaten liegen weder im Browser
+noch im Repository. Erst nach einer vom Kontoinhaber autorisierten
+ChatGPT-Plan-Verbindung ist das Senden aktiv. Ob ein privater Web-Dienst fuer
+diese Vorschau freigeschaltet wird, muss beim Login/Inferenztest bestaetigt
+werden. Bis dahin zeigt die Seite ausdruecklich "noch nicht verbunden".
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.
