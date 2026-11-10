@@ -30,6 +30,7 @@ function render() {
 async function connect() {
   try {
     const response = await fetch('/commands-chat-api', { credentials: 'same-origin', cache: 'no-store' });
+    if (response.redirected || !(response.headers.get('Content-Type') || '').includes('application/json')) throw new Error('Anmeldung abgelaufen. Bitte Seite neu laden.');
     const data = await response.json();
     if (!response.ok || !data.connected) throw new Error(data.error || 'Chat nicht verbunden');
     for (const item of data.models || []) {
@@ -57,6 +58,7 @@ document.querySelector('#form').addEventListener('submit', async event => {
   setStatus('Antwort wird erstellt …');
   try {
     const response = await fetch('/commands-chat-api', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: model.value, messages }) });
+    if (response.redirected || !(response.headers.get('Content-Type') || '').includes('application/json')) throw new Error('Anmeldung abgelaufen. Bitte Seite neu laden.');
     const data = await response.json();
     if (!response.ok || typeof data.text !== 'string') throw new Error(data.error || 'Keine Antwort erhalten');
     messages.push({ role: 'assistant', content: data.text });

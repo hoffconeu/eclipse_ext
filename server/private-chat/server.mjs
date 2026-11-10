@@ -100,9 +100,9 @@ async function chat(token, model, messages) {
   let pending = '';
   const decoder = new TextDecoder();
   for await (const chunk of response.body) {
-    pending += decoder.decode(chunk, { stream: true }).replaceAll('\r\n', '\n');
+    pending += decoder.decode(chunk, { stream: true });
     if (pending.length > 2_000_000) throw new Error('Response too large');
-    const events = pending.split('\n\n');
+    const events = pending.split(/\r?\n\r?\n/);
     pending = events.pop() || '';
     for (const event of events) {
       const line = event.split('\n').find(s => s.startsWith('data: '));
