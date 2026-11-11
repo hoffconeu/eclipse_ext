@@ -154,6 +154,13 @@ ChatGPT-Plan-Verbindung ist das Senden aktiv. Ob ein privater Web-Dienst fuer
 diese Vorschau freigeschaltet wird, muss beim Login/Inferenztest bestaetigt
 werden. Bis dahin zeigt die Seite ausdruecklich "noch nicht verbunden".
 
+Fuer die einmalige Verbindung ist ein plattformunabhaengiger lokaler
+Anmeldehelfer unter `scripts/private-chat/siwc-login.mjs` vorbereitet. Er
+verwendet einen lokalen Browser-Callback auf dem privaten Rechner und prueft
+das OpenAI-ID-Token kryptographisch. Der Import auf den Server erfolgt nur
+ueber einen gesonderten sicheren Transfer; Voraussetzungen stehen in
+`server/private-chat/README.md`. Keine Tokens in den Chat kopieren.
+
 ## Installation
 
 1. In Eclipse `Help` → `Install New Software...` oeffnen.

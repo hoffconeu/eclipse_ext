@@ -15,11 +15,28 @@ uebertragene, verifizierte Credential-Datei gehoert nach
 Codex-CLI-`auth.json` ist **kein** Ersatz. Der Dienst erneuert gueltige SIWC-
 Tokens mit dem ausgegebenen Client-ID, nicht mit `dynamic_agent_client`.
 
-Die erste Anmeldung ist hier absichtlich nicht automatisiert: OpenAI verlangt
-bei diesem OSS-Flow einen lokalen `127.0.0.1`-Callback und gepruefte ID-Token-
-Identitaet; ausserdem sind private Web-Apps in der Vorschau nur selektiv
-zugelassen. Die Anmeldung muss mit dem Konto des Nutzers auf dessen privatem
-Rechner erfolgen. Erst nach dieser Freigabe und einem erfolgreichen
+Der Anmeldehelfer `scripts/private-chat/siwc-login.mjs` laeuft auf dem
+**privaten Rechner des Kontoinhabers**, nicht auf dem Server. Er braucht
+Node.js 20 oder neuer, oeffnet die offizielle Anmeldeseite und verwendet
+einen lokalen `127.0.0.1`-Callback mit PKCE, State und Nonce. Er prueft die
+Signatur und Identitaet des ID-Tokens sowie die erteilte Plan-Berechtigung.
+Die geschuetzte Datei liegt danach im Benutzerprofil unter
+`oje-private-chat/credentials.json`. Sie darf weder in den Chat noch ins
+Diagnoseformular kopiert werden.
+
+Fuer den SSH-Transfer zuerst auf dem Server im eigenen Benutzerkonto ein
+privates Verzeichnis `~/.oje-private-chat-transfer` (Modus `0700`) anlegen.
+Die Datei dort per SCP als `credentials.json` ablegen. Anschliessend als
+Administrator `sudo node /opt/oje-private-chat/import-siwc.mjs
+/home/<BENUTZER>/.oje-private-chat-transfer/credentials.json` ausfuehren.
+Der Import prueft die ID-Token-Signatur erneut, schreibt die Credential-Datei
+atomar mit Modus `0600` fuer `oje-chat`, behaelt die eigene VM-Host-ID bei und
+entfernt die Server-Transferkopie. Die lokale Originaldatei bleibt fuer
+spaetere erneute Anmeldung im privaten Benutzerprofil.
+
+Private remote gehostete Web-Apps sind laut OpenAI nur selektiv fuer die
+ChatGPT-Plan-Nutzung zugelassen. Der Anmeldehelfer umgeht diese
+Zulassungsgrenze nicht. Erst nach erfolgter Freigabe und einem erfolgreichen
 Inferenztest ist der Chat betriebsbereit.
 
 Offizielle Referenzen:
