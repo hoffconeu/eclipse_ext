@@ -12,6 +12,10 @@ const AUTH_ORIGIN = 'https://auth.openai.com';
 const RESOURCE = 'https://api.openai.com/v1';
 const AGENT_NAME = 'OJE Private Chat';
 
+export function parseCallbackUrl(requestUrl) {
+  return new URL(requestUrl || '/', 'http://127.0.0.1');
+}
+
 export function verifyIdentityToken(jwt, jwks, clientId, nonce, previousSubject) {
   const parts = jwt.split('.');
   if (parts.length !== 3) throw new Error('Ungueltiges ID-Token');
@@ -87,9 +91,12 @@ async function main() {
   const verifier = randomBytes(64).toString('base64url');
   const challenge = createHash('sha256').update(verifier).digest('base64url');
   let timer;
+  let redirect;
   const callback = new Promise((resolve, reject) => {
     const server = http.createServer((request, response) => {
-      const url = new URL(request.url || '/', `http://127.0.0.1:${server.address().port}`);
+      // server.address() can be null once close() starts (e.g. a browser's
+      // subsequent favicon request). Parsing the path does not need the port.
+      const url = parseCallbackUrl(request.url);
       if (url.pathname !== '/auth/callback' || request.method !== 'GET') { response.writeHead(404); response.end(); return; }
       if (url.searchParams.get('state') !== state) { response.writeHead(400); response.end('Ungueltiger Anmeldeversuch.'); return; }
       clearTimeout(timer);
@@ -101,7 +108,7 @@ async function main() {
     });
     server.on('error', reject);
     server.listen(0, '127.0.0.1', () => {
-      const redirect = `http://127.0.0.1:${server.address().port}/auth/callback`;
+      redirect = `http://127.0.0.1:${server.address().port}/auth/callback`;
       const auth = new URL(`${AUTH_ORIGIN}/api/accounts/authorize`);
       const clientId = previous?.client_id || registration?.client_id || 'dynamic_agent_client';
       for (const [name, value] of Object.entries({ client_id: clientId, ext_agent_host_id: host.ext_agent_host_id, response_type: 'code', redirect_uri: redirect, scope: 'openid profile email offline_access resource.invoke chatgpt.tokens.use.direct', resource: RESOURCE, state, nonce, code_challenge_method: 'S256', code_challenge: challenge })) auth.searchParams.set(name, value);
@@ -110,7 +117,6 @@ async function main() {
       console.log(auth.toString());
       openBrowser(auth.toString());
       timer = setTimeout(() => { server.close(); reject(new Error('Anmeldung nach 5 Minuten abgelaufen')); }, 5 * 60 * 1000);
-      callback.redirect = redirect;
     });
   });
   const result = await callback;
@@ -120,7 +126,7 @@ async function main() {
   if (!previous && !registration) await saveJson(registrationFile, { client_id: clientId });
   const tokenResponse = await fetch(`${AUTH_ORIGIN}/api/accounts/oauth/token`, {
     method: 'POST',
-    body: new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, code: result.code, code_verifier: verifier, redirect_uri: callback.redirect, resource: RESOURCE }),
+    body: new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, code: result.code, code_verifier: verifier, redirect_uri: redirect, resource: RESOURCE }),
     signal: AbortSignal.timeout(20000),
   });
   if (!tokenResponse.ok) throw new Error(`Token-Austausch fehlgeschlagen (${tokenResponse.status})`);

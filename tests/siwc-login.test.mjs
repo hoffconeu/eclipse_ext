@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { verifyIdentityToken } from '../scripts/private-chat/siwc-login.mjs';
+import { parseCallbackUrl, verifyIdentityToken } from '../scripts/private-chat/siwc-login.mjs';
+
+test('parses callback and follow-up requests without a live server port', () => {
+  assert.equal(parseCallbackUrl('/auth/callback?state=abc').searchParams.get('state'), 'abc');
+  assert.equal(parseCallbackUrl('/favicon.ico').pathname, '/favicon.ico');
+});
 
 const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'test', alg: 'RS256', use: 'sig' };
