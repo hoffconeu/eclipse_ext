@@ -74,8 +74,8 @@ https://eclipse-ext.pages.dev/repository/
 Die bisherige Origin-Adresse `https://ext.oje.me/repository/` bleibt als
 serverseitige Alternative bestehen.
 
-Als GitHub-basierte Alternative steht das gleiche p2-Repository unter dieser
-Adresse bereit:
+Die GitHub-basierte Alternative wird nicht automatisch mit der
+Cloudflare-Pages-Site synchronisiert und kann einen aelteren Stand enthalten:
 
 ```text
 https://raw.githubusercontent.com/hoffconeu/eclipse_ext/gh-pages/repository/
