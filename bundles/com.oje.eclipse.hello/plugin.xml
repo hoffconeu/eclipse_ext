@@ -21,6 +21,9 @@
             id="com.oje.eclipse.hello.commands.teamsPopupProbe"
             categoryId="com.oje.eclipse.hello.commands.category"
             name="Teams-Popups lokal pruefen"/>
+        <command id="com.oje.eclipse.hello.commands.pairBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Geraet koppeln"/>
+        <command id="com.oje.eclipse.hello.commands.startBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Lesezugriff starten"/>
+        <command id="com.oje.eclipse.hello.commands.stopBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Lesezugriff stoppen"/>
     </extension>
 
     <extension point="org.eclipse.ui.handlers">
@@ -36,6 +39,9 @@
         <handler
             commandId="com.oje.eclipse.hello.commands.teamsPopupProbe"
             class="com.oje.eclipse.hello.handlers.TeamsPopupProbeHandler"/>
+        <handler commandId="com.oje.eclipse.hello.commands.pairBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
+        <handler commandId="com.oje.eclipse.hello.commands.startBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
+        <handler commandId="com.oje.eclipse.hello.commands.stopBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
     </extension>
 
     <extension point="org.eclipse.ui.menus">
@@ -56,6 +62,9 @@
                 commandId="com.oje.eclipse.hello.commands.teamsPopupProbe"
                 label="OJE Teams-Popups pruefen (nur lokal)"
                 style="push"/>
+            <command commandId="com.oje.eclipse.hello.commands.pairBridge" label="OJE Codex-Geraet koppeln" style="push"/>
+            <command commandId="com.oje.eclipse.hello.commands.startBridge" label="OJE Codex-Lesezugriff starten" style="push"/>
+            <command commandId="com.oje.eclipse.hello.commands.stopBridge" label="OJE Codex-Lesezugriff stoppen" style="push"/>
         </menuContribution>
         <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
             <toolbar id="com.oje.eclipse.hello.toolbar">

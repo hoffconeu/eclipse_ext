@@ -1,0 +1,29 @@
+OJE Eclipse/Codex-Bruecke 1.0.5: erster Test nur mit synthetischem Text
+
+1. Eclipse aktualisieren: Help > Install New Software... >
+   https://eclipse-ext.pages.dev/repository/
+   'Contact all update sites during install to find required software' deaktivieren.
+   Vor Finish pruefen: Nur OJE Eclipse Extension 1.0.5, keine ASM-/Jetty-/SAP-/Eclipse-Plattformupdates.
+   Eclipse neu starten.
+2. Vor dem Test alle Editoren mit Firmeninhalten schliessen. Oeffne dann
+   einen lokalen Texteditor mit ausschliesslich dem Testtext:
+   OJE-BRIDGE-SYNTHETIC-20261116
+   Noch keinen echten ABAP-/Firmenquelltext freigeben.
+3. Help > OJE Codex-Geraet koppeln. Den achtstelligen Code hier eingeben:
+   https://eclipse-ext.pages.dev/commands-eclipse-pair.html
+   Die Seite ist ueber Cloudflare Access geschuetzt.
+4. Help > OJE Codex-Lesezugriff starten. Die angezeigten Fingerprints
+   unabhaengig mit den Angaben in diesem vertrauenswuerdigen Chat vergleichen:
+   Empfaenger: a5d565c67dd4bcd67317ab2e32db843cf732e51c383f7403d3dcc43921643c7e
+   Server:     8d52a5d0abc7cee905afd3693dbf3c5f76cabf89e315f41154e0d3fa27e8c466
+   Beachte: Die Sitzung erlaubt bis zum Stoppen oder Eclipse-Ende den Abruf
+   aller offenen und spaeter geoeffneten Texteditoren, auch ungespeicherter Inhalte.
+5. Wenn '[OJE Codex: LESEN AKTIV]' im Eclipse-Fenstertitel steht, hier melden.
+   Danach pruefen wir zuerst nur die Liste und den synthetischen Text.
+6. Nach dem Test: Help > OJE Codex-Lesezugriff stoppen.
+
+Plug-in-JAR 1.0.5.202611161618 SHA-256:
+846493a831b67df4d5e1c70a46abd798d39ea8cd3d4499db8d78228feec8edd5
+
+Wenn Kopplung oder Start fehlschlagen, nur den Fehlertext senden, keine
+Schluessel oder echten Quelltexte.

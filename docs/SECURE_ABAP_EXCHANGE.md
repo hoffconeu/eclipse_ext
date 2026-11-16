@@ -1,15 +1,18 @@
-# Geplanter ABAP-Austausch (noch nicht aktiv)
+# ABAP-Austausch: Kryptobaustein und lesende Bruecke
 
 ## Produktgrenze
 
-Die Erweiterung soll nur bewusst markierten ABAP-Text einlesen und spaeter
-Vorschlaege anzeigen. Sie soll nichts automatisch nach SAP zurueckschreiben.
+Die Erweiterung soll ABAP-Text nur nach ausdruecklicher Freigabe einer
+Lesesitzung einlesen und spaeter Vorschlaege anzeigen. Sie soll nichts
+automatisch nach SAP zurueckschreiben. Die 1.0.5-Bruecke kann offene
+Texteditoren auflisten und einzelne Inhalte verschluesselt uebertragen;
+siehe `docs/ON_DEMAND_FILE_BRIDGE.md`.
 Version 1.0.2 prueft ausschliesslich lokal, ob die Editor-Auswahl erkannt wird.
 Version 1.0.3 nutzt den JWE-Writer nur fuer einen fest eingebauten,
 synthetischen Testmarker. Der Marker wird verschluesselt in die Zwischenablage
 kopiert; der Nutzer sendet ihn bewusst ueber die Access-geschuetzte
-Befehlsseite. Es gibt weiterhin keinen ABAP-Upload-Endpunkt und keine
-produktive Schluesselkonfiguration.
+Befehlsseite. Dieser alte Testbefehl liest keinen Editor. Die neue Bruecke
+nutzt ein separates Schluesselpaar und einen separaten Transport.
 
 ## Implementierter Kryptobaustein
 
@@ -32,7 +35,8 @@ Die Kryptofunktionen selbst lesen oder speichern keine Schluesseldateien und
 senden keine Netzwerkanfragen. Das 1.0.3-Plug-in enthaelt nur einen
 oeffentlichen **Test**schluessel; der zugehoerige private Schluessel liegt mit
 Dateimodus 0600 ausserhalb von Git und Webroot auf dem Server. Es existiert
-kein produktiver privater Schluessel im Repository. Serverseitig ist das
+kein produktiver privater Schluessel im Repository. Die 1.0.5-Bruecke hat
+separate Schluessel ausserhalb von Git und Webroot. Fuer den alten Test ist das
 Python-Paket `cryptography` erforderlich; ein separater Pruefbefehl
 entschluesselt aus einer Access-geschuetzten Rueckmeldung nur den Testmarker
 und gibt lediglich dessen UUID aus. Kein Web-Endpunkt entschluesselt beliebige
@@ -57,22 +61,18 @@ dem Server. Auch Antworten mit Quelltext muessen Ende-zu-Ende geschuetzt sein.
 Transportverschluesselung allein reicht gegen den genannten TLS-Inspector
 nicht. App-Layer-Verschluesselung schuetzt jedoch **nicht**, wenn der Inspector
 den unsignierten Eclipse-Installer, die Erweiterung oder einen ungeprueft
-abgerufenen Public Key austauschen kann. Vor der Uebertragung echter
-Unternehmensdaten fehlen deshalb noch:
+abgerufenen Public Key austauschen kann. Die Bruecke implementiert nun
+Geraeteauthentifizierung, Antwortsignaturen, gepinnte Schluessel und
+fluechtige Einmalanfragen. Vor echtem Unternehmensinhalt bleiben offen:
 
 1. Vertrauenswuerdige Verteilung bzw. Signatur des Plug-ins und unabhaengige
    Pruefung eines festgelegten Schluessel-Fingerprints.
-2. Authentifizierung des Senders und eng begrenzte Autorisierung am Empfang.
-   Das Cloudflare-Access-Browser-Cookie authentifiziert nicht automatisch
-   einen Eclipse-HTTP-Client. Keine langlebigen Service-Tokens im Plug-in.
-3. Ein begrenzter, protokollierter Empfang mit festgelegter Aufbewahrung und
-   Loeschung sowie ein sicherer, verschluesselter Antwortkanal.
-4. Ein Ende-zu-Ende-Test der kuenftigen **allgemeinen ABAP-Transportstrecke**.
+2. Ein Ende-zu-Ende-Test der **neuen ABAP-Transportstrecke am Zielrechner**.
    Der erste Test ueber Eclipse-Zwischenablage und die bestehende
    Access-geschuetzte Rueckmeldung transportiert ausschliesslich einen
    synthetischen Marker. Java/Python-Kryptokompatibilitaet und Ablehnung
    veraenderter Nachrichten und falscher Schluessel sind bereits getestet.
 
 Bis diese Punkte geklaert und geprueft sind, keine echten ABAP-Quellen ueber
-Diagnose- oder Befehlsformulare senden. Die Bestaetigung, dass die Firma den
-Datentransfer erlaubt, ersetzt nicht die technische Absicherung.
+die Bruecke oder Diagnose-/Befehlsformulare senden. Die Bestaetigung, dass
+die Firma den Datentransfer erlaubt, ersetzt nicht die technische Absicherung.

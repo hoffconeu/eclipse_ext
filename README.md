@@ -22,11 +22,21 @@ nicht ausgegeben. Es wird nichts an Telegram oder einen Server gesendet.
 Erst wenn beide Ereignisse auf dem Zielrechner wiederholt eindeutig erkannt
 werden, wird die automatische Weiterleitung entwickelt.
 
+Version 1.0.5 ergaenzt die lesende Eclipse/Codex-Bruecke: einmalige
+Geraetekopplung ueber Cloudflare Access, anschliessend eine ausdruecklich in
+Eclipse gestartete Lesesitzung bis zum Widerruf oder Eclipse-Ende. Codex kann
+offene Texteditoren auflisten und einzelne Inhalte einschliesslich
+ungespeicherter Aenderungen verschluesselt anfordern. Kein Workspace-Scan,
+kein automatischer Gesamtupload und kein SAP-Schreiben. Anleitung,
+Sicherheitsgrenzen und Fingerprints: [docs/ON_DEMAND_FILE_BRIDGE.md](docs/ON_DEMAND_FILE_BRIDGE.md).
+Der Zielrechner-/ADT-Test mit synthetischem Text steht noch aus; bis dahin
+keine echten Unternehmensquellen senden.
+
 Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
-automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Eine
-Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung und ein
-passender Python-Entschluesseler sind mit synthetischen Daten getestet, aber
-noch nicht mit einem allgemeinen ABAP-Transport verbunden. Das Sicherheitskonzept
+automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
+Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
+der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den
+synthetischen Test bleibt separat. Das Sicherheitskonzept
 steht in [docs/SECURE_ABAP_EXCHANGE.md](docs/SECURE_ABAP_EXCHANGE.md).
 
 ## Voraussetzungen
@@ -160,6 +170,11 @@ verwendet einen lokalen Browser-Callback auf dem privaten Rechner und prueft
 das OpenAI-ID-Token kryptographisch. Der Import auf den Server erfolgt nur
 ueber einen gesonderten sicheren Transfer; Voraussetzungen stehen in
 `server/private-chat/README.md`. Keine Tokens in den Chat kopieren.
+
+Die 1.0.5-Bruecke und ihr derzeitiger Teststand sind in
+`docs/ON_DEMAND_FILE_BRIDGE.md` beschrieben. Geraetekopplung und
+Sitzungsfreigabe sind getrennte Schritte; die Sitzung umfasst alle
+geoeffneten Texteditoren bis zum manuellen Stoppen oder Eclipse-Ende.
 
 ## Installation
 

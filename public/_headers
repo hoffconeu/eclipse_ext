@@ -34,3 +34,9 @@
 
 /commands-chat-api
     Cache-Control: no-store
+
+/commands-eclipse-pair*
+    Cache-Control: no-store
+
+/eclipse-device-api
+    Cache-Control: no-store

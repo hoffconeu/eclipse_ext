@@ -1,5 +1,5 @@
 {
     "version": 1,
-    "include": ["/api/diagnostics", "/commands-feed", "/commands-chat-api"],
+    "include": ["/api/diagnostics", "/commands-feed", "/commands-chat-api", "/eclipse-device-api", "/commands-eclipse-pair-api"],
     "exclude": []
 }
