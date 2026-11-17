@@ -1,8 +1,8 @@
-# Eclipse ↔ Codex: freigegebene Texteditoren und Vorschau (1.0.7)
+# Eclipse ↔ Codex: freigegebene Texteditoren und Vorschlaege (1.0.8)
 
 ## Bedienung
 
-1. In Eclipse ab Version 1.0.7 `Help` → `Oje.me` → `Codex-Geraet koppeln` ausfuehren.
+1. In Eclipse ab Version 1.0.8 `Help` → `Oje.me` → `Codex-Geraet koppeln` ausfuehren.
 2. Den achtstelligen Code auf `https://eclipse-ext.pages.dev/commands-eclipse-pair.html`
    nach dem Cloudflare-Access-Login bestaetigen. Die Kopplung allein gibt **keine** Inhalte frei.
 3. In Eclipse `Help` → `Oje.me` → `Codex-Lesezugriff starten` ausfuehren. Der Dialog nennt den
@@ -16,18 +16,21 @@
    gesendet, nicht schon beim Oeffnen.
 5. `eclipse_read_editor` liefert ab 1.0.7 neben dem Text `sha256`. Codex kann
    `eclipse_show_proposal(editor_id, base_sha256, proposed_text, summary)` aufrufen.
-   Eclipse zeigt den aktuellen Stand und den Vorschlag nebeneinander in einem
-   schreibgeschuetzten Fenster. Stimmen Editor-ID oder SHA-256 des aktuellen
-   Textes nicht mehr, wird der Vorschlag verworfen. Es gibt keinen
-   Uebernehmen-Knopf und keine automatische SAP-Speicherung/Aktivierung.
+   Eclipse zeigt den aktuellen Stand links schreibgeschuetzt und den Vorschlag
+   rechts bearbeitbar. Mit `In offenen Editor uebernehmen` und einer weiteren
+   Bestaetigung wird der rechte Text in den noch offenen Editorpuffer eingesetzt.
+   Stimmen Editor-ID oder SHA-256 des aktuellen Textes nicht mehr, wird die
+   Uebernahme verweigert. Eclipse speichert/aktiviert dabei nichts in SAP.
+   Ohne Uebernahme verfallen Aenderungen am rechten Text beim Schliessen.
 6. `Help` → `Oje.me` → `Codex-Lesezugriff stoppen` widerruft die Sitzung. Auch ein
    Eclipse-Neustart beendet sie; die Geraetekopplung bleibt erhalten.
 
 ## Grenzen und Absicherung
 
 - Kein Workspace-Scan, keine beliebigen Dateisystempfade, keine Binaerdateien,
-  keine Schreibfunktion und kein automatischer SAP-Zugriff. Der Vergleich
-  markiert Aenderungen noch nicht zeilenweise.
+  kein automatischer SAP-Zugriff. Die einzige Schreibfunktion ist die explizite
+  lokale Uebernahme in den geoeffneten Editorpuffer. Der Vergleich markiert
+  Aenderungen noch nicht zeilenweise.
 - Je Antwort maximal 1 MiB Klartext. Uebergrosse Texte erzeugen einen
   `too_large`-Fehler, keine still gekuerzten Inhalte.
 - Die Eclipse-Instanz erzeugt einen Ed25519-Geraeteschluessel und speichert
@@ -64,8 +67,8 @@ Plug-in-Artefakt und die beiden in Eclipse angezeigten Fingerprints ueber
 einen unabhaengig vertrauenswuerdigen Kanal vergleichen. Dass die Firma den
 Transfer erlaubt, ersetzt diese technische Kontrolle nicht.
 
-- Plug-in 1.0.7.202611170546 SHA-256:
-  `674ee535d2939fe7464ca6076dd537dd7b0c71fd315b5ff820ac9d8b0e70d2cf`
+- Plug-in 1.0.8.202611170635 SHA-256:
+  `c04848de83e318c27867320cca96a4b09ccd44307d5893b25dd1164b24a0bc75`
 - Empfaenger-SPKI SHA-256:
   `a5d565c67dd4bcd67317ab2e32db843cf732e51c383f7403d3dcc43921643c7e`
 - Server-Signatur-SPKI SHA-256:

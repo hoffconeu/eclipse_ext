@@ -43,6 +43,11 @@ Vorschlag nur schreibgeschuetzt nebeneinander, wenn die Ausgangspruefsumme
 noch stimmt. Es gibt keine Uebernahme oder SAP-Speicherung. Details stehen in
 [docs/ON_DEMAND_FILE_BRIDGE.md](docs/ON_DEMAND_FILE_BRIDGE.md).
 
+Version 1.0.8 macht die rechte Vergleichsseite bearbeitbar und bietet eine
+ausdrueckliche Uebernahme in den offenen Eclipse-Editorpuffer an. Vor der
+Uebernahme wird der unveraenderte Ausgangstext erneut geprueft; SAP-Speicherung
+und -Aktivierung bleiben manuell.
+
 Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
 der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den

@@ -35,9 +35,10 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridLayout;
@@ -50,7 +51,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-/** Opt-in Eclipse bridge. Inbound proposals are preview-only and never edit buffers. */
+/** Opt-in Eclipse bridge. Inbound proposals edit a buffer only after explicit local acceptance. */
 public final class BridgeClient {
     private static final BridgeClient INSTANCE = new BridgeClient();
     private static final String BASE = "https://eclipse-ext.pages.dev/eclipse-device-api?action=";
@@ -234,23 +235,62 @@ public final class BridgeClient {
                     "Der Editor hat sich seit dem Lesen geaendert. Vorschlag verworfen; bitte erneut lesen.");
                 return;
             }
-            Shell shell = new Shell(Display.getDefault().getActiveShell(), SWT.DIALOG_TRIM | SWT.RESIZE);
-            shell.setText("Oje.me Vorschlag – nur ansehen: " + editor.part.getTitle());
+            Shell shell = new Shell(Display.getDefault().getActiveShell(), SWT.SHELL_TRIM | SWT.RESIZE);
+            shell.setText("Oje.me Vorschlag: " + editor.part.getTitle());
             shell.setLayout(new GridLayout(2, true));
             Label heading = new Label(shell, SWT.WRAP);
-            heading.setText("Nur Vorschau – keine Uebernahme, Speicherung oder Aktivierung. " + summary);
+            heading.setText(summary + "\nRechts bearbeiten, dann bewusst in den offenen Editor uebernehmen. "
+                + "Das speichert oder aktiviert nichts in SAP. Ungenutzte Aenderungen rechts verfallen beim Schliessen.");
             heading.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
             new Label(shell, SWT.NONE).setText("Aktueller Editor");
-            new Label(shell, SWT.NONE).setText("Vorschlag von Codex");
-            Text current = new Text(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+            new Label(shell, SWT.NONE).setText("Vorschlag (bearbeitbar)");
+            StyledText current = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
             current.setText(document.get());
             current.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-            Text proposed = new Text(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+            StyledText proposed = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
             proposed.setText(suggested);
             proposed.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            Button apply = new Button(shell, SWT.PUSH);
+            apply.setText("In offenen Editor uebernehmen");
+            apply.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+            apply.addListener(SWT.Selection, event -> {
+                Editor target = null;
+                for (Editor candidate : openEditors()) {
+                    if (candidate.id.equals(editorId)) { target = candidate; break; }
+                }
+                if (target == null) {
+                    MessageDialog.openWarning(shell, "Uebernahme nicht moeglich", "Der Ziel-Editor ist nicht mehr offen.");
+                    return;
+                }
+                IDocument latest = target.text.getDocumentProvider().getDocument(target.part.getEditorInput());
+                if (latest == null || !baseHash.equals(sha256(latest.get()))) {
+                    MessageDialog.openWarning(shell, "Uebernahme nicht moeglich",
+                        "Der Ziel-Editor wurde seit dem Lesen geaendert. Bitte neu lesen und einen neuen Vorschlag anfordern.");
+                    return;
+                }
+                if (!target.text.isEditable()) {
+                    MessageDialog.openWarning(shell, "Uebernahme nicht moeglich", "Der Ziel-Editor ist schreibgeschuetzt.");
+                    return;
+                }
+                if (!MessageDialog.openConfirm(shell, "Vorschlag uebernehmen?",
+                    "Den rechten Text in den offenen Eclipse-Editor uebernehmen? "
+                        + "Das speichert oder aktiviert den ABAP-Quelltext nicht in SAP.")) return;
+                if (!baseHash.equals(sha256(latest.get())) || !target.text.isEditable()) {
+                    MessageDialog.openWarning(shell, "Uebernahme nicht moeglich",
+                        "Der Ziel-Editor hat sich waehrend der Bestaetigung geaendert. Bitte neu lesen.");
+                    return;
+                }
+                try {
+                    latest.replace(0, latest.getLength(), proposed.getText());
+                    shell.close();
+                    target.part.getSite().getPage().activate(target.part);
+                } catch (BadLocationException exception) {
+                    MessageDialog.openError(shell, "Uebernahme fehlgeschlagen", exception.getMessage());
+                }
+            });
             Button close = new Button(shell, SWT.PUSH);
-            close.setText("Schliessen");
-            close.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 2, 1));
+            close.setText("Verwerfen / Schliessen");
+            close.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
             close.addListener(SWT.Selection, event -> shell.close());
             shell.setSize(1100, 700);
             shell.open();
