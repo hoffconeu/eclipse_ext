@@ -76,6 +76,15 @@ test('synthetic pairing, grant, one-time encrypted read and revocation', {timeou
     assert.equal(result.status, 'approved');
     assert.deepEqual(decryptEnvelope(result.envelope, recipient.privateKey).items[0].title, 'SYNTHETIC');
     assert.equal((await (await call(`/local/result/${request.id}`, {headers: localHeaders})).json()).status, 'expired');
+    const problemRequest = await call('/local/request', {method: 'POST', headers: localHeaders,
+      body: JSON.stringify({kind: 'problems'})});
+    assert.equal(problemRequest.status, 200);
+    const problemId = (await problemRequest.json()).id;
+    assert.equal(await (await signed('GET', '/device/poll')).text(), `${problemId}\tproblems`);
+    const problemEnvelope = encrypt({requestId: problemId, kind: 'problems', items: []}, recipient.publicKey);
+    assert.equal((await signed('POST', `/device/respond/${problemId}`, problemEnvelope)).status, 200);
+    const problemResult = await (await call(`/local/result/${problemId}`, {headers: localHeaders})).json();
+    assert.equal(decryptEnvelope(problemResult.envelope, recipient.privateKey).kind, 'problems');
     assert.equal((await signed('POST', '/device/session', 'stop')).status, 200);
     assert.equal((await (await call('/local/status', {headers: localHeaders})).json()).online, false);
     const proposalKey = generateKeyPairSync('rsa', {modulusLength: 3072});

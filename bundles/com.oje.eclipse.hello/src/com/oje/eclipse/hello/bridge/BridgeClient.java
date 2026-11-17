@@ -32,6 +32,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.text.IDocument;
@@ -162,8 +166,12 @@ public final class BridgeClient {
         if (display.isDisposed()) return null;
         display.syncExec(() -> {
             if (!active) return;
-            List<Editor> open = openEditors();
             String id = fields[0];
+            if (fields.length == 2 && "problems".equals(fields[1])) {
+                result[0] = captureProblems(id);
+                return;
+            }
+            List<Editor> open = openEditors();
             if (fields.length == 2 && "list".equals(fields[1])) {
                 StringBuilder json = new StringBuilder("{\"requestId\":").append(quote(id))
                     .append(",\"kind\":\"list\",\"items\":[");
@@ -190,6 +198,46 @@ public final class BridgeClient {
             }
         });
         return result[0];
+    }
+
+    private String captureProblems(String id) {
+        try {
+            IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot()
+                .findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+            if (markers.length > 500) return error(id, "too_many_problems");
+            int errors = 0, warnings = 0, infos = 0;
+            for (IMarker marker : markers) {
+                int severity = marker.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+                if (severity == IMarker.SEVERITY_ERROR) errors++;
+                else if (severity == IMarker.SEVERITY_WARNING) warnings++;
+                else infos++;
+            }
+            Shell shell = Display.getDefault().getActiveShell();
+            if (!MessageDialog.openConfirm(shell, "Oje.me: Problems freigeben?",
+                "Codex moechte die Problem-Marker aus dem gesamten Eclipse-Workspace lesen: "
+                    + errors + " Fehler, " + warnings + " Warnungen, " + infos + " Infos. "
+                    + "Dabei werden Beschreibung, Workspace-Pfad und Position verschluesselt uebertragen. "
+                    + "Die Filter der Problems-Ansicht werden nicht beruecksichtigt. Jetzt einmalig freigeben?"))
+                return error(id, "denied");
+            if (!active) return error(id, "session_stopped");
+            StringBuilder json = new StringBuilder("{\"requestId\":").append(quote(id))
+                .append(",\"kind\":\"problems\",\"errors\":").append(errors)
+                .append(",\"warnings\":").append(warnings).append(",\"infos\":").append(infos)
+                .append(",\"items\":[");
+            for (IMarker marker : markers) {
+                if (json.charAt(json.length() - 1) != '[') json.append(',');
+                json.append("{\"severity\":")
+                    .append(marker.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO))
+                    .append(",\"message\":").append(quote(marker.getAttribute(IMarker.MESSAGE, "")))
+                    .append(",\"resource\":").append(quote(marker.getResource().getFullPath().toString()))
+                    .append(",\"line\":").append(marker.getAttribute(IMarker.LINE_NUMBER, -1))
+                    .append(",\"location\":").append(quote(marker.getAttribute(IMarker.LOCATION, "")))
+                    .append('}');
+            }
+            return json.append("]}").toString();
+        } catch (CoreException failure) {
+            return error(id, "problems_unavailable");
+        }
     }
 
     private List<Editor> openEditors() {

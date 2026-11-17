@@ -29,8 +29,9 @@ public final class BridgeHandler extends AbstractHandler {
                     "Codex darf ALLE aktuell und spaeter geoeffneten Texteditoren auflisten und deren Inhalt"
                         + " auf Anfrage lesen, auch ungespeicherte Aenderungen. Codex kann waehrend der Sitzung"
                         + " verschluesselte Textvorschlaege fuer zuvor gelesene Editoren senden."
-                        + " Diese werden nur in einem schreibgeschuetzten Vergleichsfenster angezeigt."
-                        + " Keine Uebernahme, keine Binardateien, kein SAP-Schreiben."
+                        + " Die Vorschlaege koennen nur nach lokalem Klick in den offenen Editorpuffer uebernommen werden."
+                        + " Problem-Marker aus dem gesamten Workspace sind nur nach zusaetzlicher Bestaetigung je Abruf lesbar."
+                        + " Keine Binardateien, kein automatisches SAP-Speichern oder Aktivieren."
                         + "\n\nDie Freigabe endet erst bei 'Codex-Lesezugriff stoppen' oder beim Schliessen von Eclipse."
                         + " Waehrenddessen steht LESEN AKTIV im Fenstertitel."
                         + "\n\nEmpfaenger-Schluessel SHA-256: " + BridgeClient.recipientFingerprint()

@@ -27,6 +27,17 @@ test('denial releases no payload', () => {
   assert.deepEqual(requests.consume({ sessionId: 's', id }), { status: 'denied', envelope: null });
 });
 
+test('problems request is session-bound and accepts no extra target fields', () => {
+  const requests = new EclipseReadRequests();
+  assert.throws(() => requests.create({sessionId: 's', deviceId: 'd',
+    target: {kind: 'list-problems', path: '/private'}, purpose: 'Pruefung'}));
+  const {id} = requests.create({sessionId: 's', deviceId: 'd',
+    target: {kind: 'list-problems'}, purpose: 'Pruefung'});
+  assert.deepEqual(requests.pending('d')[0].target, {kind: 'list-problems'});
+  requests.cancelSession('s');
+  assert.equal(requests.respond({deviceId: 'd', id, approved: true, envelope}), false);
+});
+
 test('requests expire and reject unsafe editor identifiers', () => {
   let now = 1000;
   const requests = new EclipseReadRequests({ now: () => now, ttlMs: 100 });

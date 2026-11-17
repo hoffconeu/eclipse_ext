@@ -113,7 +113,8 @@ const server = createServer(async (req, res) => {
       if (path === '/device/poll' && req.method === 'GET') {
         if (!active.has(id)) return signed(res, 403, 'inactive');
         active.get(id).lastSeen = now();
-        const pending = requests.pending(id).map(r => `${r.id}\t${r.target.kind === 'list-open-editors' ? 'list' : 'read'}${r.target.id ? `\t${r.target.id}` : ''}`);
+        const pending = requests.pending(id).map(r => `${r.id}\t${r.target.kind === 'list-open-editors' ? 'list'
+          : r.target.kind === 'list-problems' ? 'problems' : 'read'}${r.target.id ? `\t${r.target.id}` : ''}`);
         for (const [proposalId, item] of proposals) {
           if (item.deviceId === id && item.sessionId === active.get(id).sessionId && item.expires > now())
             pending.push(`P\t${proposalId}\t${item.envelope}`);
@@ -161,8 +162,9 @@ const server = createServer(async (req, res) => {
       if (path === '/local/request' && req.method === 'POST') {
         if (live.length !== 1) return error(res, 409);
         const input = JSON.parse(body.toString('utf8'));
-        if (!['list', 'read'].includes(input.kind)) return error(res, 400);
-        const target = input.kind === 'list' ? {kind: 'list-open-editors'} : {kind: 'open-editor', id: input.editorId};
+        if (!['list', 'read', 'problems'].includes(input.kind)) return error(res, 400);
+        const target = input.kind === 'list' ? {kind: 'list-open-editors'}
+          : input.kind === 'problems' ? {kind: 'list-problems'} : {kind: 'open-editor', id: input.editorId};
         const sessionId = active.get(live[0]).sessionId;
         const request = requests.create({sessionId, deviceId: live[0], target, purpose: 'Codex-Lesezugriff'});
         requestSessions.set(request.id, sessionId);

@@ -48,6 +48,10 @@ ausdrueckliche Uebernahme in den offenen Eclipse-Editorpuffer an. Vor der
 Uebernahme wird der unveraenderte Ausgangstext erneut geprueft; SAP-Speicherung
 und -Aktivierung bleiben manuell.
 
+Version 1.0.9 ergaenzt einen gesondert zu bestaetigenden, verschluesselten
+Abruf der Eclipse-Problem-Marker (Fehler, Warnungen, Infos) im Workspace.
+Ansichtsfilter werden nicht nachgebildet; maximal 500 Marker bzw. 1 MiB.
+
 Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
 der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den

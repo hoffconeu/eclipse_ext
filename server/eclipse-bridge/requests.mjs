@@ -7,6 +7,7 @@ const MAX_PENDING = 100;
 function validTarget(target) {
   if (!target || typeof target !== 'object') return false;
   if (target.kind === 'list-open-editors') return Object.keys(target).length === 1;
+  if (target.kind === 'list-problems') return Object.keys(target).length === 1;
   return target.kind === 'open-editor' && Object.keys(target).length === 2
     && typeof target.id === 'string' && /^[a-f0-9]{32}$/.test(target.id);
 }

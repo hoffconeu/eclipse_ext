@@ -21,7 +21,7 @@ async function resultFor(id) {
   if (result.status === 'pending') return {status: 'pending', request_id: id};
   if (result.status !== 'approved') return {status: result.status};
   const plain = decryptEnvelope(result.envelope, recipientKey);
-  if (plain.requestId !== id || !['list', 'read', 'error'].includes(plain.kind))
+  if (plain.requestId !== id || !['list', 'read', 'problems', 'error'].includes(plain.kind))
     throw new Error('Response did not match request');
   return plain;
 }
@@ -40,8 +40,9 @@ const tools = [
   {name: 'eclipse_connection_status', description: 'Prueft, ob in Eclipse eine ausdruecklich freigegebene Lesesitzung aktiv ist.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_list_open_editors', description: 'Listet aktuell geoeffnete lesbare Texteditoren der freigegebenen Eclipse-Sitzung; uebertraegt keinen Inhalt.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_read_editor', description: 'Liest genau einen zuvor gelisteten offenen Texteditor, einschliesslich ungespeicherter Aenderungen; maximal 1 MiB.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}}, required: ['editor_id']}},
+  {name: 'eclipse_read_problems', description: 'Liest Eclipse-Problem-Marker (Fehler, Warnungen, Infos) aus dem Workspace nur nach gesonderter Bestaetigung in Eclipse. Ansichtsfilter werden nicht nachgebildet; maximal 500 Marker und 1 MiB.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_get_result', description: 'Holt das Ergebnis einer noch laufenden Eclipse-Anfrage anhand ihrer request_id.', inputSchema: {type: 'object', properties: {request_id: {type: 'string'}}, required: ['request_id']}},
-  {name: 'eclipse_show_proposal', description: 'Sendet einen Ende-zu-Ende-verschluesselten Textvorschlag fuer einen zuvor gelesenen Editor an Eclipse. Nur schreibgeschuetzte Vorschau, keine Uebernahme oder SAP-Speicherung.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}, base_sha256: {type: 'string'}, proposed_text: {type: 'string'}, summary: {type: 'string'}}, required: ['editor_id', 'base_sha256', 'proposed_text']}},
+  {name: 'eclipse_show_proposal', description: 'Sendet einen Ende-zu-Ende-verschluesselten Textvorschlag fuer einen zuvor gelesenen Editor an Eclipse. Uebernahme in den Editorpuffer nur nach lokalem Klick und Bestaetigung; keine SAP-Speicherung.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}, base_sha256: {type: 'string'}, proposed_text: {type: 'string'}, summary: {type: 'string'}}, required: ['editor_id', 'base_sha256', 'proposed_text']}},
 ];
 
 async function tool(name, args) {
@@ -51,6 +52,7 @@ async function tool(name, args) {
     case 'eclipse_read_editor':
       if (!/^[a-f0-9]{32}$/.test(args.editor_id || '')) throw new Error('Invalid editor id');
       return requested('read', args.editor_id);
+    case 'eclipse_read_problems': return requested('problems');
     case 'eclipse_get_result':
       if (!/^[a-f0-9-]{36}$/.test(args.request_id || '')) throw new Error('Invalid request id');
       return resultFor(args.request_id);
