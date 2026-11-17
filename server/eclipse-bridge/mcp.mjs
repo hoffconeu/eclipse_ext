@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { decryptEnvelope } from './protocol.mjs';
+import { randomUUID } from 'node:crypto';
+import { decryptEnvelope, encryptEnvelope, MAX_TEXT } from './protocol.mjs';
 
 const port = Number(process.env.ECLIPSE_BRIDGE_PORT || 8097);
 const baseDir = process.env.ECLIPSE_BRIDGE_DATA_DIR || '/var/lib/oje-eclipse-bridge';
@@ -40,6 +41,7 @@ const tools = [
   {name: 'eclipse_list_open_editors', description: 'Listet aktuell geoeffnete lesbare Texteditoren der freigegebenen Eclipse-Sitzung; uebertraegt keinen Inhalt.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_read_editor', description: 'Liest genau einen zuvor gelisteten offenen Texteditor, einschliesslich ungespeicherter Aenderungen; maximal 1 MiB.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}}, required: ['editor_id']}},
   {name: 'eclipse_get_result', description: 'Holt das Ergebnis einer noch laufenden Eclipse-Anfrage anhand ihrer request_id.', inputSchema: {type: 'object', properties: {request_id: {type: 'string'}}, required: ['request_id']}},
+  {name: 'eclipse_show_proposal', description: 'Sendet einen Ende-zu-Ende-verschluesselten Textvorschlag fuer einen zuvor gelesenen Editor an Eclipse. Nur schreibgeschuetzte Vorschau, keine Uebernahme oder SAP-Speicherung.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}, base_sha256: {type: 'string'}, proposed_text: {type: 'string'}, summary: {type: 'string'}}, required: ['editor_id', 'base_sha256', 'proposed_text']}},
 ];
 
 async function tool(name, args) {
@@ -52,6 +54,20 @@ async function tool(name, args) {
     case 'eclipse_get_result':
       if (!/^[a-f0-9-]{36}$/.test(args.request_id || '')) throw new Error('Invalid request id');
       return resultFor(args.request_id);
+    case 'eclipse_show_proposal': {
+      if (!/^[a-f0-9]{32}$/.test(args.editor_id || '') || !/^[a-f0-9]{64}$/.test(args.base_sha256 || '')
+        || typeof args.proposed_text !== 'string' || typeof args.summary !== 'string' && args.summary !== undefined
+        || (args.summary || '').length > 500) throw new Error('Invalid proposal');
+      const key = await api('proposal-key');
+      if (!/^[A-Za-z0-9_-]{24}$/.test(key.sessionId || '')) throw new Error('Invalid session');
+      const id = randomUUID();
+      const plain = [id, args.editor_id, args.base_sha256, String(Date.now()),
+        Buffer.from(args.summary || '', 'utf8').toString('base64'),
+        Buffer.from(args.proposed_text, 'utf8').toString('base64')].join('\n');
+      if (Buffer.byteLength(plain, 'utf8') > MAX_TEXT) throw new Error('Proposal too large');
+      const envelope = encryptEnvelope(plain, key.publicKey);
+      return api('proposal', {id, sessionId: key.sessionId, envelope});
+    }
     default: throw new Error('Unknown tool');
   }
 }

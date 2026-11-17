@@ -27,7 +27,10 @@ public final class BridgeHandler extends AbstractHandler {
                 boolean accepted = MessageDialog.openConfirm(HandlerUtil.getActiveShell(event),
                     "OJE Codex-Lesezugriff bis Eclipse-Ende freigeben?",
                     "Codex darf ALLE aktuell und spaeter geoeffneten Texteditoren auflisten und deren Inhalt"
-                        + " auf Anfrage lesen, auch ungespeicherte Aenderungen. Keine Binardateien, kein SAP-Schreiben."
+                        + " auf Anfrage lesen, auch ungespeicherte Aenderungen. Codex kann waehrend der Sitzung"
+                        + " verschluesselte Textvorschlaege fuer zuvor gelesene Editoren senden."
+                        + " Diese werden nur in einem schreibgeschuetzten Vergleichsfenster angezeigt."
+                        + " Keine Uebernahme, keine Binardateien, kein SAP-Schreiben."
                         + "\n\nDie Freigabe endet erst bei 'Codex-Lesezugriff stoppen' oder beim Schliessen von Eclipse."
                         + " Waehrenddessen steht LESEN AKTIV im Fenstertitel."
                         + "\n\nEmpfaenger-Schluessel SHA-256: " + BridgeClient.recipientFingerprint()

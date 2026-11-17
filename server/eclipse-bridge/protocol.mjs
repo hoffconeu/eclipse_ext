@@ -1,4 +1,4 @@
-import { createHash, createPublicKey, createPrivateKey, verify, sign, randomBytes, privateDecrypt, createDecipheriv, constants } from 'node:crypto';
+import { createHash, createPublicKey, createPrivateKey, verify, sign, randomBytes, privateDecrypt, createDecipheriv, publicEncrypt, createCipheriv, constants } from 'node:crypto';
 
 export const MAX_CIPHERTEXT = 2_000_000;
 export const MAX_TEXT = 1_048_576;
@@ -40,6 +40,23 @@ export function decryptEnvelope(compact, privateKey) {
   key.fill(0);
   if (plain.length > MAX_TEXT) throw new Error('Plaintext too large');
   return JSON.parse(plain.toString('utf8'));
+}
+
+export function encryptEnvelope(plaintext, publicKey) {
+  const plain = Buffer.from(plaintext, 'utf8');
+  const keyObject = createPublicKey(publicKey);
+  if (!plain.length || plain.length > MAX_TEXT || keyObject.asymmetricKeyType !== 'rsa'
+    || keyObject.asymmetricKeyDetails.modulusLength < 3072) throw new Error('Invalid proposal or key');
+  const header = b64url('{"alg":"RSA-OAEP-256","enc":"A256GCM"}');
+  const cek = randomBytes(32); const iv = randomBytes(12);
+  try {
+    const wrapped = publicEncrypt({key: keyObject, padding: constants.RSA_PKCS1_OAEP_PADDING,
+      oaepHash: 'sha256'}, cek);
+    const cipher = createCipheriv('aes-256-gcm', cek, iv);
+    cipher.setAAD(Buffer.from(header));
+    const encrypted = Buffer.concat([cipher.update(plain), cipher.final()]);
+    return [header, b64url(wrapped), b64url(iv), b64url(encrypted), b64url(cipher.getAuthTag())].join('.');
+  } finally { cek.fill(0); }
 }
 
 export const newId = () => b64url(randomBytes(18));

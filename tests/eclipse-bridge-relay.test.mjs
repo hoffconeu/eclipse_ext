@@ -5,8 +5,8 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:net';
-import { generateKeyPairSync, sign, randomBytes, publicEncrypt, createCipheriv, constants } from 'node:crypto';
-import { b64url, deviceMessage, decryptEnvelope } from '../server/eclipse-bridge/protocol.mjs';
+import { generateKeyPairSync, sign, randomBytes, publicEncrypt, createCipheriv, constants, randomUUID } from 'node:crypto';
+import { b64url, deviceMessage, decryptEnvelope, encryptEnvelope } from '../server/eclipse-bridge/protocol.mjs';
 
 async function freePort() {
   const server = createServer();
@@ -78,6 +78,28 @@ test('synthetic pairing, grant, one-time encrypted read and revocation', {timeou
     assert.equal((await (await call(`/local/result/${request.id}`, {headers: localHeaders})).json()).status, 'expired');
     assert.equal((await signed('POST', '/device/session', 'stop')).status, 200);
     assert.equal((await (await call('/local/status', {headers: localHeaders})).json()).online, false);
+    const proposalKey = generateKeyPairSync('rsa', {modulusLength: 3072});
+    const proposalPublic = proposalKey.publicKey.export({format: 'pem', type: 'spki'});
+    assert.equal((await signed('POST', '/device/session', 'start\n' + proposalPublic)).status, 200);
+    assert.equal((await call('/local/proposal-key')).status, 401);
+    const keyReply = await (await call('/local/proposal-key', {headers: localHeaders})).json();
+    assert.equal(keyReply.publicKey, proposalPublic);
+    const proposalId = randomUUID();
+    const proposalEnvelope = encryptEnvelope(JSON.stringify({id: proposalId, text: 'SYNTHETIC'}), proposalPublic);
+    assert.equal(decryptEnvelope(proposalEnvelope, proposalKey.privateKey).text, 'SYNTHETIC');
+    const offered = await call('/local/proposal', {method: 'POST', headers: localHeaders,
+      body: JSON.stringify({id: proposalId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})});
+    assert.equal(offered.status, 200);
+    assert.match(await (await signed('GET', '/device/poll')).text(), new RegExp('^P\t' + proposalId + '\t'));
+    assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 200);
+    assert.equal(await (await signed('GET', '/device/poll')).text(), '');
+    assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 409);
+    const laterId = randomUUID();
+    assert.equal((await call('/local/proposal', {method: 'POST', headers: localHeaders,
+      body: JSON.stringify({id: laterId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})})).status, 200);
+    assert.equal((await signed('POST', '/device/session', 'stop')).status, 200);
+    assert.equal((await signed('POST', '/device/session', 'start\n' + proposalPublic)).status, 200);
+    assert.equal(await (await signed('GET', '/device/poll')).text(), '');
   } finally {
     child.kill();
     await rm(directory, {recursive: true, force: true});

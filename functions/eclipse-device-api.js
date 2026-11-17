@@ -2,8 +2,8 @@ const paths = {init: 'init', poll: 'poll', session: 'session'};
 
 export async function onRequest(context) {
   const action = new URL(context.request.url).searchParams.get('action') || '';
-  const match = /^respond\/([a-f0-9-]{36})$/.exec(action);
-  const suffix = paths[action] || (match && `respond/${match[1]}`);
+  const match = /^(respond|ack)\/([a-f0-9-]{36})$/.exec(action);
+  const suffix = paths[action] || (match && match[1] + '/' + match[2]);
   if (!suffix || !['GET', 'POST'].includes(context.request.method)) return new Response('Not found', {status: 404});
   const base = context.env.ECLIPSE_BRIDGE_ORIGIN_URL;
   if (!base) return new Response('Bridge not configured', {status: 503});

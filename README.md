@@ -37,8 +37,13 @@ Version 1.0.6 fasst die bisherigen Help-Menueeintraege unter `Oje.me` in
 einem Untermenue zusammen. Kopplung und Lesezugriff stehen oben, die lokalen
 Testaktionen darunter. Das Verhalten der Aktionen ist unveraendert.
 
-Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
-automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
+Version 1.0.7 ergaenzt den verschluesselten Rueckweg: Codex kann fuer einen
+gelesenen Editor einen Textvorschlag senden. Eclipse zeigt Original und
+Vorschlag nur schreibgeschuetzt nebeneinander, wenn die Ausgangspruefsumme
+noch stimmt. Es gibt keine Uebernahme oder SAP-Speicherung. Details stehen in
+[docs/ON_DEMAND_FILE_BRIDGE.md](docs/ON_DEMAND_FILE_BRIDGE.md).
+
+Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
 der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den
 synthetischen Test bleibt separat. Das Sicherheitskonzept

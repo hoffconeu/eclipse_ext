@@ -17,6 +17,11 @@ const pairCodes = new Map();
 const active = new Map();
 const requests = new EclipseReadRequests();
 const requestSessions = new Map();
+const proposals = new Map();
+const PROPOSAL_TTL = 120_000;
+function clearProposals(deviceId) {
+  for (const [id, item] of proposals) if (item.deviceId === deviceId) proposals.delete(id);
+}
 
 async function saveDevices() {
   const temp = `${dataPath}.${newId()}.tmp`;
@@ -28,6 +33,7 @@ setInterval(() => {
   requests.purgeExpired();
   for (const [id] of requestSessions) if (!requests.exists(id)) requestSessions.delete(id);
   for (const [code, pending] of pairCodes) if (pending.expires < now()) pairCodes.delete(code);
+  for (const [id, item] of proposals) if (item.expires < now()) proposals.delete(id);
 }, 30_000).unref();
 
 function response(res, status, body = '', headers = {}) {
@@ -83,21 +89,44 @@ const server = createServer(async (req, res) => {
         path, timestamp: stamp, body, signature: req.headers['x-oje-signature']})) return signed(res, 401, 'unauthorized');
       if (path === '/device/session' && req.method === 'POST') {
         const action = body.toString('utf8');
-        if (action === 'start') {
+        if (action === 'start' || action.startsWith('start\n')) {
+          let proposalKey = null;
+          if (action !== 'start') {
+            proposalKey = action.slice(6);
+            try {
+              const key = createPublicKey(proposalKey);
+              if (key.asymmetricKeyType !== 'rsa' || key.asymmetricKeyDetails.modulusLength < 3072
+                || proposalKey.length > 2048) return signed(res, 400, 'invalid key');
+            } catch { return signed(res, 400, 'invalid key'); }
+          }
           if (active.has(id)) requests.cancelSession(active.get(id).sessionId);
-          active.set(id, {lastSeen: now(), sessionId: newId()});
+          clearProposals(id);
+          active.set(id, {lastSeen: now(), sessionId: newId(), proposalKey});
         } else if (action === 'stop') {
           if (active.has(id)) requests.cancelSession(active.get(id).sessionId);
+          clearProposals(id);
           active.delete(id);
         }
         else return error(res, 400);
-        return signed(res, 200, action);
+        return signed(res, 200, action === 'stop' ? 'stop' : 'start');
       }
       if (path === '/device/poll' && req.method === 'GET') {
         if (!active.has(id)) return signed(res, 403, 'inactive');
         active.get(id).lastSeen = now();
         const pending = requests.pending(id).map(r => `${r.id}\t${r.target.kind === 'list-open-editors' ? 'list' : 'read'}${r.target.id ? `\t${r.target.id}` : ''}`);
+        for (const [proposalId, item] of proposals) {
+          if (item.deviceId === id && item.sessionId === active.get(id).sessionId && item.expires > now())
+            pending.push(`P\t${proposalId}\t${item.envelope}`);
+        }
         return signed(res, 200, pending.join('\n'));
+      }
+      const ack = /^\/device\/ack\/([a-f0-9-]{36})$/.exec(path);
+      if (ack && req.method === 'POST' && active.has(id)) {
+        const item = proposals.get(ack[1]);
+        if (!item || item.deviceId !== id || item.sessionId !== active.get(id).sessionId)
+          return signed(res, 409, 'expired');
+        proposals.delete(ack[1]);
+        return signed(res, 200, 'accepted');
       }
       const match = /^\/device\/respond\/([a-f0-9-]{36})$/.exec(path);
       if (match && req.method === 'POST' && active.has(id)) {
@@ -113,6 +142,22 @@ const server = createServer(async (req, res) => {
       const live = [...active.keys()].filter(id => now() - active.get(id).lastSeen < 15_000 && devices.has(id));
       if (path === '/local/status' && req.method === 'GET')
         return response(res, 200, JSON.stringify({online: live.length > 0, devices: live.length}));
+      if (path === '/local/proposal-key' && req.method === 'GET') {
+        if (live.length !== 1 || !active.get(live[0]).proposalKey) return error(res, 409);
+        const session = active.get(live[0]);
+        return response(res, 200, JSON.stringify({sessionId: session.sessionId, publicKey: session.proposalKey}));
+      }
+      if (path === '/local/proposal' && req.method === 'POST') {
+        if (live.length !== 1) return error(res, 409);
+        const input = JSON.parse(body.toString('utf8'));
+        if (!/^[a-f0-9-]{36}$/.test(input.id || '') || typeof input.envelope !== 'string'
+          || input.envelope.length > MAX_CIPHERTEXT || !/^[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+){4}$/.test(input.envelope)
+          || input.sessionId !== active.get(live[0]).sessionId || proposals.has(input.id)
+          || !active.get(live[0]).proposalKey || proposals.size >= 20) return error(res, 400);
+        proposals.set(input.id, {deviceId: live[0], sessionId: input.sessionId,
+          envelope: input.envelope, expires: now() + PROPOSAL_TTL});
+        return response(res, 200, JSON.stringify({status: 'queued', id: input.id}));
+      }
       if (path === '/local/request' && req.method === 'POST') {
         if (live.length !== 1) return error(res, 409);
         const input = JSON.parse(body.toString('utf8'));

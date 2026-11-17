@@ -1,4 +1,5 @@
 import com.oje.eclipse.hello.crypto.JweEnvelope;
+import com.oje.eclipse.hello.crypto.JweReader;
 import com.oje.eclipse.hello.crypto.PinnedRecipientKey;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
@@ -39,6 +40,8 @@ public final class JweEnvelopeSelfTest {
         }
         byte[] message = "ABAP test data only: äöü".getBytes(StandardCharsets.UTF_8);
         String token = JweEnvelope.encrypt(message, recipient.getPublic());
+        require(Arrays.equals(message, JweReader.decrypt(token, recipient.getPrivate())),
+            "JWE reader round-trip mismatch");
         String[] parts = token.split("\\.", -1);
         require(parts.length == 5, "JWE must have five parts");
         require("{\"alg\":\"RSA-OAEP-256\",\"enc\":\"A256GCM\"}"
@@ -61,6 +64,16 @@ public final class JweEnvelopeSelfTest {
             "round-trip plaintext mismatch");
 
         authenticatedPayload[0] ^= 1;
+        String[] tamperedToken = token.split("\\.", -1);
+        byte[] modifiedTag = decode(tamperedToken[4]);
+        modifiedTag[0] ^= 1;
+        tamperedToken[4] = Base64.getUrlEncoder().withoutPadding().encodeToString(modifiedTag);
+        try {
+            JweReader.decrypt(String.join(".", tamperedToken), recipient.getPrivate());
+            throw new AssertionError("JWE reader accepted modified tag");
+        } catch (AEADBadTagException expected) {
+            // The authenticated proposal must be intact.
+        }
         Cipher tampered = Cipher.getInstance("AES/GCM/NoPadding");
         tampered.init(Cipher.DECRYPT_MODE, new SecretKeySpec(cek, "AES"),
             new GCMParameterSpec(128, decode(parts[2])));

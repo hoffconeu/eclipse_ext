@@ -1,6 +1,7 @@
 package com.oje.eclipse.hello.bridge;
 
 import com.oje.eclipse.hello.crypto.JweEnvelope;
+import com.oje.eclipse.hello.crypto.JweReader;
 import com.oje.eclipse.hello.crypto.PinnedRecipientKey;
 import java.io.InputStream;
 import java.net.URI;
@@ -25,6 +26,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,13 +36,21 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.SWT;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-/** Opt-in, read-only Eclipse-to-Codex bridge. No content is read outside an active session. */
+/** Opt-in Eclipse bridge. Inbound proposals are preview-only and never edit buffers. */
 public final class BridgeClient {
     private static final BridgeClient INSTANCE = new BridgeClient();
     private static final String BASE = "https://eclipse-ext.pages.dev/eclipse-device-api?action=";
@@ -58,6 +69,8 @@ public final class BridgeClient {
     private PublicKey recipientPublic;
     private PrivateKey devicePrivate;
     private String deviceId;
+    private volatile PrivateKey proposalPrivate;
+    private final Set<String> seenProposals = ConcurrentHashMap.newKeySet();
 
     private BridgeClient() { }
     public static BridgeClient get() { return INSTANCE; }
@@ -87,16 +100,26 @@ public final class BridgeClient {
     public synchronized void start() throws Exception {
         if (active) return;
         loadPinnedKeys(); loadDevice();
-        HttpResponse<String> response = send("POST", "session", "start", deviceId, devicePrivate);
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(3072);
+        KeyPair proposalKeys = generator.generateKeyPair();
+        String proposalPem = "-----BEGIN PUBLIC KEY-----\n"
+            + Base64.getMimeEncoder(64, new byte[] {'\n'}).encodeToString(proposalKeys.getPublic().getEncoded())
+            + "\n-----END PUBLIC KEY-----";
+        HttpResponse<String> response = send("POST", "session", "start\n" + proposalPem, deviceId, devicePrivate);
         if (response.statusCode() != 200) throw new IllegalStateException(
             "Geraet noch nicht gekoppelt. Code auf der Access-Seite bestaetigen und erneut starten.");
         active = true;
+        proposalPrivate = proposalKeys.getPrivate();
+        seenProposals.clear();
         Display.getDefault().syncExec(this::updateTitles);
         polling = scheduler.scheduleWithFixedDelay(this::pollSafely, 0, 2, TimeUnit.SECONDS);
     }
 
     public synchronized void stop() {
         active = false;
+        proposalPrivate = null;
+        seenProposals.clear();
         if (polling != null) polling.cancel(false);
         Display.getDefault().syncExec(this::updateTitles);
         if (deviceId != null && devicePrivate != null) {
@@ -114,6 +137,10 @@ public final class BridgeClient {
             for (String line : response.body().split("\\n")) {
                 if (line.isBlank() || !active) continue;
                 String[] fields = line.split("\\t", -1);
+                if (fields.length == 3 && "P".equals(fields[0])) {
+                    receiveProposal(fields[1], fields[2]);
+                    continue;
+                }
                 if (fields.length < 2 || !fields[0].matches("[a-f0-9-]{36}")) continue;
                 String payload = capture(fields);
                 if (payload == null || !active) continue;
@@ -154,7 +181,8 @@ public final class BridgeClient {
                     String content = document.get();
                     result[0] = "{\"requestId\":" + quote(id) + ",\"kind\":\"read\",\"editorId\":"
                         + quote(editor.id) + ",\"title\":" + quote(editor.part.getTitle())
-                        + ",\"dirty\":" + editor.part.isDirty() + ",\"text\":" + quote(content) + "}";
+                        + ",\"dirty\":" + editor.part.isDirty() + ",\"sha256\":"
+                        + quote(sha256(content)) + ",\"text\":" + quote(content) + "}";
                     return;
                 }
                 result[0] = error(id, "editor_closed_or_unreadable");
@@ -177,6 +205,66 @@ public final class BridgeClient {
             }
         }
         return result;
+    }
+
+    private void receiveProposal(String id, String envelope) throws Exception {
+        if (!id.matches("[a-f0-9-]{36}") || seenProposals.contains(id) || proposalPrivate == null) return;
+        byte[] plain = JweReader.decrypt(envelope, proposalPrivate);
+        String[] parts = new String(plain, StandardCharsets.UTF_8).split("\n", -1);
+        if (parts.length != 6 || !id.equals(parts[0]) || !parts[1].matches("[a-f0-9]{32}")
+            || !parts[2].matches("[a-f0-9]{64}") || !parts[3].matches("[0-9]{13}")
+            || Math.abs(System.currentTimeMillis() - Long.parseLong(parts[3])) > 120_000) return;
+        String summary = new String(Base64.getDecoder().decode(parts[4]), StandardCharsets.UTF_8);
+        String suggested = new String(Base64.getDecoder().decode(parts[5]), StandardCharsets.UTF_8);
+        if (summary.length() > 500 || suggested.length() > 1_048_576) return;
+        seenProposals.add(id);
+        Display display = Display.getDefault();
+        if (display.isDisposed()) return;
+        display.asyncExec(() -> showProposal(parts[1], parts[2], summary, suggested));
+        send("POST", "ack/" + id, "", deviceId, devicePrivate);
+    }
+
+    private void showProposal(String editorId, String baseHash, String summary, String suggested) {
+        if (!active || Display.getDefault().isDisposed()) return;
+        for (Editor editor : openEditors()) {
+            if (!editor.id.equals(editorId)) continue;
+            IDocument document = editor.text.getDocumentProvider().getDocument(editor.part.getEditorInput());
+            if (document == null || !baseHash.equals(sha256(document.get()))) {
+                MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
+                    "Der Editor hat sich seit dem Lesen geaendert. Vorschlag verworfen; bitte erneut lesen.");
+                return;
+            }
+            Shell shell = new Shell(Display.getDefault().getActiveShell(), SWT.DIALOG_TRIM | SWT.RESIZE);
+            shell.setText("Oje.me Vorschlag – nur ansehen: " + editor.part.getTitle());
+            shell.setLayout(new GridLayout(2, true));
+            Label heading = new Label(shell, SWT.WRAP);
+            heading.setText("Nur Vorschau – keine Uebernahme, Speicherung oder Aktivierung. " + summary);
+            heading.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+            new Label(shell, SWT.NONE).setText("Aktueller Editor");
+            new Label(shell, SWT.NONE).setText("Vorschlag von Codex");
+            Text current = new Text(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+            current.setText(document.get());
+            current.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            Text proposed = new Text(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY);
+            proposed.setText(suggested);
+            proposed.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            Button close = new Button(shell, SWT.PUSH);
+            close.setText("Schliessen");
+            close.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false, 2, 1));
+            close.addListener(SWT.Selection, event -> shell.close());
+            shell.setSize(1100, 700);
+            shell.open();
+            return;
+        }
+        MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
+            "Der Ziel-Editor ist nicht mehr offen. Vorschlag verworfen.");
+    }
+
+    private static String sha256(String text) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(text.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) { throw new IllegalStateException(e); }
     }
 
     private void updateTitles() {
