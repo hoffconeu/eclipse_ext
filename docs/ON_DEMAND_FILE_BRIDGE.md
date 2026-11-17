@@ -2,10 +2,10 @@
 
 ## Bedienung
 
-1. In Eclipse `Help` → `OJE Codex-Geraet koppeln` ausfuehren.
+1. In Eclipse ab Version 1.0.6 `Help` → `Oje.me` → `Codex-Geraet koppeln` ausfuehren.
 2. Den achtstelligen Code auf `https://eclipse-ext.pages.dev/commands-eclipse-pair.html`
    nach dem Cloudflare-Access-Login bestaetigen. Die Kopplung allein gibt **keine** Inhalte frei.
-3. In Eclipse `Help` → `OJE Codex-Lesezugriff starten` ausfuehren. Der Dialog nennt den
+3. In Eclipse `Help` → `Oje.me` → `Codex-Lesezugriff starten` ausfuehren. Der Dialog nennt den
    Umfang und die Fingerprints. Nur nach expliziter Zustimmung steht
    `[OJE Codex: LESEN AKTIV]` im Fenstertitel.
 4. Codex kann nun `eclipse_connection_status`, `eclipse_list_open_editors`,
@@ -14,7 +14,7 @@
    Ein spaeter geoeffneter Texteditor und ungespeicherte Aenderungen gehoeren
    waehrend der Sitzung ebenfalls dazu. Inhalte werden nur einzeln auf Abruf
    gesendet, nicht schon beim Oeffnen.
-5. `Help` → `OJE Codex-Lesezugriff stoppen` widerruft die Sitzung. Auch ein
+5. `Help` → `Oje.me` → `Codex-Lesezugriff stoppen` widerruft die Sitzung. Auch ein
    Eclipse-Neustart beendet sie; die Geraetekopplung bleibt erhalten.
 
 ## Grenzen und Absicherung

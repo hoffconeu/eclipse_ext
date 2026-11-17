@@ -1,7 +1,8 @@
 # OJE Eclipse Extension
 
 Eine installierbare Eclipse-Erweiterung, die unabhaengig neben SAP ADT laeuft.
-Der erste Meilenstein fuegt unter `Help` den Befehl `OJE Hello World` hinzu.
+Alle Aktionen liegen ab Version 1.0.6 unter `Help` → `Oje.me`.
+Der erste Meilenstein fuegte den Befehl `Hello World` hinzu.
 Version 1.0.2 ergaenzt `OJE ABAP-Auswahl pruefen (lokal)`: In einem
 geoeffneten ABAP-Editor Quelltext markieren und den Befehl waehlen. Er zeigt
 nur Editortitel und Laenge der Markierung an. Ohne Markierung wird kein ganzes
@@ -31,6 +32,10 @@ kein automatischer Gesamtupload und kein SAP-Schreiben. Anleitung,
 Sicherheitsgrenzen und Fingerprints: [docs/ON_DEMAND_FILE_BRIDGE.md](docs/ON_DEMAND_FILE_BRIDGE.md).
 Der Zielrechner-/ADT-Test mit synthetischem Text steht noch aus; bis dahin
 keine echten Unternehmensquellen senden.
+
+Version 1.0.6 fasst die bisherigen Help-Menueeintraege unter `Oje.me` in
+einem Untermenue zusammen. Kopplung und Lesezugriff stehen oben, die lokalen
+Testaktionen darunter. Das Verhalten der Aktionen ist unveraendert.
 
 Die kuenftige Entwicklungshilfe soll Vorschlaege ausschliesslich anzeigen;
 automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
@@ -184,7 +189,7 @@ geoeffneten Texteditoren bis zum manuellen Stoppen oder Eclipse-Ende.
    deaktivieren, damit Eclipse keine Plattformpakete aus anderen Update-Sites
    mit der bestehenden Installation vermischt.
 4. `OJE Eclipse Extension` installieren und Eclipse neu starten.
-5. `Help` → `OJE Hello World` ausfuehren.
+5. `Help` → `Oje.me` → `Hello World` ausfuehren.
 
 Fuer den Update-Test auf Version 1.0.2 denselben Repository-Eintrag erneut
 unter `Help` → `Install New Software...` waehlen und den Haken bei `Contact

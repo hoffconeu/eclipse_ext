@@ -46,25 +46,16 @@
 
     <extension point="org.eclipse.ui.menus">
         <menuContribution locationURI="menu:help?after=additions">
-            <command
-                commandId="com.oje.eclipse.hello.commands.sayHello"
-                label="OJE Hello World"
-                style="push"/>
-            <command
-                commandId="com.oje.eclipse.hello.commands.checkSelection"
-                label="OJE ABAP-Auswahl pruefen (lokal)"
-                style="push"/>
-            <command
-                commandId="com.oje.eclipse.hello.commands.cryptoTest"
-                label="OJE Verschluesselungstest (nur Testtext)"
-                style="push"/>
-            <command
-                commandId="com.oje.eclipse.hello.commands.teamsPopupProbe"
-                label="OJE Teams-Popups pruefen (nur lokal)"
-                style="push"/>
-            <command commandId="com.oje.eclipse.hello.commands.pairBridge" label="OJE Codex-Geraet koppeln" style="push"/>
-            <command commandId="com.oje.eclipse.hello.commands.startBridge" label="OJE Codex-Lesezugriff starten" style="push"/>
-            <command commandId="com.oje.eclipse.hello.commands.stopBridge" label="OJE Codex-Lesezugriff stoppen" style="push"/>
+            <menu id="com.oje.eclipse.hello.helpMenu" label="Oje.me">
+                <command commandId="com.oje.eclipse.hello.commands.pairBridge" label="Codex-Geraet koppeln" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.startBridge" label="Codex-Lesezugriff starten" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.stopBridge" label="Codex-Lesezugriff stoppen" style="push"/>
+                <separator name="com.oje.eclipse.hello.helpMenu.tests"/>
+                <command commandId="com.oje.eclipse.hello.commands.checkSelection" label="ABAP-Auswahl pruefen (lokal)" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.cryptoTest" label="Verschluesselungstest (nur Testtext)" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.teamsPopupProbe" label="Teams-Popups pruefen (nur lokal)" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.sayHello" label="Hello World" style="push"/>
+            </menu>
         </menuContribution>
         <menuContribution locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
             <toolbar id="com.oje.eclipse.hello.toolbar">
