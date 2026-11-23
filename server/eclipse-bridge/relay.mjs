@@ -117,7 +117,7 @@ const server = createServer(async (req, res) => {
           : r.target.kind === 'list-problems' ? 'problems' : 'read'}${r.target.id ? `\t${r.target.id}` : ''}`);
         for (const [proposalId, item] of proposals) {
           if (item.deviceId === id && item.sessionId === active.get(id).sessionId && item.expires > now())
-            pending.push(`P\t${proposalId}\t${item.envelope}`);
+            pending.push(`${item.kind === 'open-link' ? 'L' : 'P'}\t${proposalId}\t${item.envelope}`);
         }
         return signed(res, 200, pending.join('\n'));
       }
@@ -148,7 +148,7 @@ const server = createServer(async (req, res) => {
         const session = active.get(live[0]);
         return response(res, 200, JSON.stringify({sessionId: session.sessionId, publicKey: session.proposalKey}));
       }
-      if (path === '/local/proposal' && req.method === 'POST') {
+      if ((path === '/local/proposal' || path === '/local/open-link') && req.method === 'POST') {
         if (live.length !== 1) return error(res, 409);
         const input = JSON.parse(body.toString('utf8'));
         if (!/^[a-f0-9-]{36}$/.test(input.id || '') || typeof input.envelope !== 'string'
@@ -156,6 +156,7 @@ const server = createServer(async (req, res) => {
           || input.sessionId !== active.get(live[0]).sessionId || proposals.has(input.id)
           || !active.get(live[0]).proposalKey || proposals.size >= 20) return error(res, 400);
         proposals.set(input.id, {deviceId: live[0], sessionId: input.sessionId,
+          kind: path === '/local/open-link' ? 'open-link' : 'proposal',
           envelope: input.envelope, expires: now() + PROPOSAL_TTL});
         return response(res, 200, JSON.stringify({status: 'queued', id: input.id}));
       }

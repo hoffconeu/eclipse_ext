@@ -1,4 +1,4 @@
-# Eclipse ↔ Codex: Texteditoren, Vorschlaege und Problem-Marker (1.0.9)
+# Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.10)
 
 ## Bedienung
 
@@ -32,6 +32,13 @@
    statt einer gekuerzten Liste.
 7. `Help` → `Oje.me` → `Codex-Lesezugriff stoppen` widerruft die Sitzung. Auch ein
    Eclipse-Neustart beendet sie; die Geraetekopplung bleibt erhalten.
+8. `eclipse_open_adt_link(adt_link)` bietet ab 1.0.10 einen `adt://`-Link
+   verschluesselt in der laufenden Sitzung an. Eclipse zeigt System und Objekt
+   und verlangt fuer **jeden** Link eine lokale Bestaetigung. Danach uebergibt
+   es ihn an den registrierten ADT-Linkhandler. Das Oeffnen allein uebertraegt
+   keinen Quelltext; dazu ist `eclipse_read_editor` weiterhin separat noetig.
+   Die Antwort `queued` bedeutet nur, dass die Anfrage zugestellt wurde, nicht
+   dass der Nutzer zugestimmt oder ADT das Objekt geoeffnet hat.
 
 ## Grenzen und Absicherung
 
@@ -42,6 +49,11 @@
 - Der Problem-Abruf liest ausschliesslich Eclipse-Problem-Marker im Workspace;
   er liest keine Dateien und keine Eclipse-Error-Logs. SAP-ADT-Meldungen, die
   nicht als Problem-Marker angelegt sind, koennen fehlen.
+- ADT-Links sind auf `adt://<System>/sap/bc/adt/...` begrenzt. Andere
+  Protokolle und Dateipfade werden verworfen. Der registrierte ADT-Linkhandler
+  muss auf die gewuenschte Eclipse-Installation zeigen; das manuelle Oeffnen
+  ueber `Navigate` → `Open ADT Link` prueft diese Registrierung nicht. Der
+  Zielrechner-Test mit einem harmlosen Objekt ist noch offen.
 - Je Antwort maximal 1 MiB Klartext. Uebergrosse Texte erzeugen einen
   `too_large`-Fehler, keine still gekuerzten Inhalte.
 - Die Eclipse-Instanz erzeugt einen Ed25519-Geraeteschluessel und speichert
@@ -54,8 +66,8 @@
   (RSA-OAEP-256/A256GCM) fuer den ebenfalls gepinnten Empfaenger-Key.
   Private Server-Keys liegen ausserhalb von Git und Webroot mit Modus 0600.
 - Beim Sitzungsstart erzeugt Eclipse zusaetzlich ein fluechtiges RSA-3072-
-  Schluesselpaar. Der lokale MCP-Adapter verschluesselt jeden Vorschlag fuer
-  diesen Public Key; das Relay sieht nur JWE-Chiffretext. Vorschlaege sind
+  Schluesselpaar. Der lokale MCP-Adapter verschluesselt jeden Vorschlag und
+  ADT-Link fuer diesen Public Key; das Relay sieht nur JWE-Chiffretext. Vorschlaege sind
   an Sitzung, Editor-ID, Ausgangs-SHA-256 und zwei Minuten gebunden.
   Stoppen/Neustart verwerfen ausstehende Vorschlaege und den privaten
   Sitzungsschluessel.
@@ -78,8 +90,8 @@ Plug-in-Artefakt und die beiden in Eclipse angezeigten Fingerprints ueber
 einen unabhaengig vertrauenswuerdigen Kanal vergleichen. Dass die Firma den
 Transfer erlaubt, ersetzt diese technische Kontrolle nicht.
 
-- Plug-in 1.0.9.202611171226 SHA-256:
-  `530372806dd787648be02d5d961b3cfa5aa25babf41e8157283e3ad64ad6c4e9`
+- Plug-in 1.0.10.202611231001 SHA-256:
+  `4d415b6324806898945a3bdba6a792552b57025681ab9f73d2d3dc5b2873eea5`
 - Empfaenger-SPKI SHA-256:
   `a5d565c67dd4bcd67317ab2e32db843cf732e51c383f7403d3dcc43921643c7e`
 - Server-Signatur-SPKI SHA-256:

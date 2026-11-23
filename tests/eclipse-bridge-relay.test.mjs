@@ -103,6 +103,16 @@ test('synthetic pairing, grant, one-time encrypted read and revocation', {timeou
     assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 200);
     assert.equal(await (await signed('GET', '/device/poll')).text(), '');
     assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 409);
+    const linkId = randomUUID();
+    const linkEnvelope = encryptEnvelope('SYNTHETIC ADT LINK', proposalPublic);
+    const linkOffer = await call('/local/open-link', {method: 'POST', headers: localHeaders,
+      body: JSON.stringify({id: linkId, sessionId: keyReply.sessionId, envelope: linkEnvelope})});
+    assert.equal(linkOffer.status, 200);
+    const linkPoll = await (await signed('GET', '/device/poll')).text();
+    assert.match(linkPoll, new RegExp('^L\\t' + linkId + '\\t'));
+    assert.equal(linkPoll.includes('SYNTHETIC ADT LINK'), false);
+    assert.equal((await signed('POST', '/device/ack/' + linkId)).status, 200);
+    assert.equal(await (await signed('GET', '/device/poll')).text(), '');
     const laterId = randomUUID();
     assert.equal((await call('/local/proposal', {method: 'POST', headers: localHeaders,
       body: JSON.stringify({id: laterId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})})).status, 200);

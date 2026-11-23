@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.program.Program;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -144,6 +145,10 @@ public final class BridgeClient {
                 String[] fields = line.split("\\t", -1);
                 if (fields.length == 3 && "P".equals(fields[0])) {
                     receiveProposal(fields[1], fields[2]);
+                    continue;
+                }
+                if (fields.length == 3 && "L".equals(fields[0])) {
+                    receiveOpenLink(fields[1], fields[2]);
                     continue;
                 }
                 if (fields.length < 2 || !fields[0].matches("[a-f0-9-]{36}")) continue;
@@ -271,6 +276,45 @@ public final class BridgeClient {
         if (display.isDisposed()) return;
         display.asyncExec(() -> showProposal(parts[1], parts[2], summary, suggested));
         send("POST", "ack/" + id, "", deviceId, devicePrivate);
+    }
+
+    private void receiveOpenLink(String id, String envelope) throws Exception {
+        if (!id.matches("[a-f0-9-]{36}") || seenProposals.contains(id) || proposalPrivate == null) return;
+        byte[] plain = JweReader.decrypt(envelope, proposalPrivate);
+        String[] parts = new String(plain, StandardCharsets.UTF_8).split("\n", -1);
+        if (parts.length != 4 || !id.equals(parts[0]) || !"OPEN_ADT_LINK".equals(parts[1])
+            || !parts[2].matches("[0-9]{13}")
+            || Math.abs(System.currentTimeMillis() - Long.parseLong(parts[2])) > 120_000) return;
+        String link = new String(Base64.getDecoder().decode(parts[3]), StandardCharsets.UTF_8);
+        if (!validAdtLink(link)) return;
+        seenProposals.add(id);
+        Display display = Display.getDefault();
+        if (display.isDisposed()) return;
+        display.asyncExec(() -> showOpenLink(link));
+        send("POST", "ack/" + id, "", deviceId, devicePrivate);
+    }
+
+    private static boolean validAdtLink(String value) {
+        if (value.length() > 2048 || !value.matches("adt://[A-Za-z0-9._-]{1,128}/sap/bc/adt/[^\\s<>\"'\\\\]+")) return false;
+        try {
+            URI uri = URI.create(value);
+            return "adt".equals(uri.getScheme()) && uri.getHost() != null
+                && uri.getUserInfo() == null && uri.getPort() == -1
+                && uri.getRawPath().startsWith("/sap/bc/adt/")
+                && !uri.getPath().contains("/../");
+        } catch (IllegalArgumentException failure) { return false; }
+    }
+
+    private void showOpenLink(String link) {
+        if (!active || Display.getDefault().isDisposed()) return;
+        URI uri = URI.create(link);
+        if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Oje.me: ADT-Objekt oeffnen?",
+            "Codex moechte einen ADT-Link im registrierten ADT-Linkhandler oeffnen."
+                + "\n\nSystem: " + uri.getHost() + "\nLink: " + link
+                + "\n\nBitte pruefen, ob der Linkhandler auf dieses Eclipse zeigt."
+                + " Durch das Oeffnen wird noch kein Quelltext an Codex uebertragen. Jetzt oeffnen?")) return;
+        if (!Program.launch(link)) MessageDialog.openWarning(Display.getDefault().getActiveShell(),
+            "Oje.me: ADT-Link nicht geoeffnet", "Kein ADT-Linkhandler gefunden. Bitte die ADT-Linkhandler-Einstellung in Eclipse pruefen.");
     }
 
     private void showProposal(String editorId, String baseHash, String summary, String suggested) {

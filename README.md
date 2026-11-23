@@ -52,6 +52,12 @@ Version 1.0.9 ergaenzt einen gesondert zu bestaetigenden, verschluesselten
 Abruf der Eclipse-Problem-Marker (Fehler, Warnungen, Infos) im Workspace.
 Ansichtsfilter werden nicht nachgebildet; maximal 500 Marker bzw. 1 MiB.
 
+Version 1.0.10 ergaenzt `eclipse_open_adt_link`: Codex kann einen gueltigen
+`adt://`-Objektlink verschluesselt an Eclipse senden. Erst nach lokaler
+Bestaetigung wird er an den registrierten ADT-Linkhandler uebergeben. Die
+Funktion oeffnet ein Objekt, liest aber keinen Quelltext. Der Windows-/ADT-
+Test der programmgesteuerten Linkuebergabe steht noch aus.
+
 Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
 der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den

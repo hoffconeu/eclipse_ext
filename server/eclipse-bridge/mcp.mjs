@@ -43,7 +43,18 @@ const tools = [
   {name: 'eclipse_read_problems', description: 'Liest Eclipse-Problem-Marker (Fehler, Warnungen, Infos) aus dem Workspace nur nach gesonderter Bestaetigung in Eclipse. Ansichtsfilter werden nicht nachgebildet; maximal 500 Marker und 1 MiB.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_get_result', description: 'Holt das Ergebnis einer noch laufenden Eclipse-Anfrage anhand ihrer request_id.', inputSchema: {type: 'object', properties: {request_id: {type: 'string'}}, required: ['request_id']}},
   {name: 'eclipse_show_proposal', description: 'Sendet einen Ende-zu-Ende-verschluesselten Textvorschlag fuer einen zuvor gelesenen Editor an Eclipse. Uebernahme in den Editorpuffer nur nach lokalem Klick und Bestaetigung; keine SAP-Speicherung.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}, base_sha256: {type: 'string'}, proposed_text: {type: 'string'}, summary: {type: 'string'}}, required: ['editor_id', 'base_sha256', 'proposed_text']}},
+  {name: 'eclipse_open_adt_link', description: 'Bietet Eclipse einen Ende-zu-Ende-verschluesselten ADT-Objektlink zum Oeffnen an. Oeffnen nur nach lokaler Bestaetigung; kein Quelltext wird dadurch an Codex uebertragen.', inputSchema: {type: 'object', properties: {adt_link: {type: 'string'}}, required: ['adt_link']}},
 ];
+
+function validAdtLink(value) {
+  if (typeof value !== 'string' || value.length > 2048 || /[\s<>"'\\]/.test(value)
+    || !/^adt:\/\/[A-Za-z0-9._-]{1,128}\/sap\/bc\/adt\//.test(value)) return false;
+  try {
+    const link = new URL(value);
+    return link.protocol === 'adt:' && !link.username && !link.password && !link.port
+      && link.pathname.startsWith('/sap/bc/adt/') && !link.pathname.split('/').includes('..');
+  } catch { return false; }
+}
 
 async function tool(name, args) {
   switch (name) {
@@ -53,6 +64,16 @@ async function tool(name, args) {
       if (!/^[a-f0-9]{32}$/.test(args.editor_id || '')) throw new Error('Invalid editor id');
       return requested('read', args.editor_id);
     case 'eclipse_read_problems': return requested('problems');
+    case 'eclipse_open_adt_link': {
+      if (!validAdtLink(args.adt_link)) throw new Error('Invalid ADT link');
+      const key = await api('proposal-key');
+      if (!/^[A-Za-z0-9_-]{24}$/.test(key.sessionId || '')) throw new Error('Invalid session');
+      const id = randomUUID();
+      const plain = [id, 'OPEN_ADT_LINK', String(Date.now()),
+        Buffer.from(args.adt_link, 'utf8').toString('base64')].join('\n');
+      const envelope = encryptEnvelope(plain, key.publicKey);
+      return api('open-link', {id, sessionId: key.sessionId, envelope});
+    }
     case 'eclipse_get_result':
       if (!/^[a-f0-9-]{36}$/.test(args.request_id || '')) throw new Error('Invalid request id');
       return resultFor(args.request_id);

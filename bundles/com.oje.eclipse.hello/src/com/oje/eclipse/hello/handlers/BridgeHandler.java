@@ -30,6 +30,7 @@ public final class BridgeHandler extends AbstractHandler {
                         + " auf Anfrage lesen, auch ungespeicherte Aenderungen. Codex kann waehrend der Sitzung"
                         + " verschluesselte Textvorschlaege fuer zuvor gelesene Editoren senden."
                         + " Die Vorschlaege koennen nur nach lokalem Klick in den offenen Editorpuffer uebernommen werden."
+                        + " Codex kann ADT-Objektlinks zum Oeffnen anbieten; jeder Link braucht eine eigene Bestaetigung."
                         + " Problem-Marker aus dem gesamten Workspace sind nur nach zusaetzlicher Bestaetigung je Abruf lesbar."
                         + " Keine Binardateien, kein automatisches SAP-Speichern oder Aktivieren."
                         + "\n\nDie Freigabe endet erst bei 'Codex-Lesezugriff stoppen' oder beim Schliessen von Eclipse."
