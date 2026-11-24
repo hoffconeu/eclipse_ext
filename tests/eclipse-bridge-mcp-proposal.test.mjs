@@ -27,6 +27,9 @@ test('MCP proposal is encrypted for the current session and never sent in plaint
       offered = JSON.parse(Buffer.concat(chunks).toString('utf8'));
       response.writeHead(200).end(JSON.stringify({status: 'queued', id: offered.id})); return;
     }
+    if (request.url === `/local/delivery/${offered?.id}`) {
+      response.writeHead(200).end(JSON.stringify({id: offered.id, status: 'displayed'})); return;
+    }
     response.writeHead(404).end();
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -50,7 +53,7 @@ test('MCP proposal is encrypted for the current session and never sent in plaint
         base_sha256: 'c'.repeat(64), proposed_text: 'SYNTHETIC PROPOSAL', summary: 'synthetic'}}}) + '\n');
     const reply = await response;
     assert.equal(reply.result.isError, undefined);
-    assert.equal(JSON.parse(reply.result.content[0].text).status, 'queued');
+    assert.equal(JSON.parse(reply.result.content[0].text).status, 'displayed');
     assert.equal(offered.sessionId, sessionId);
     assert.equal(JSON.stringify(offered).includes('SYNTHETIC PROPOSAL'), false);
     const [header, wrapped, iv, ciphertext, tag] = offered.envelope.split('.');

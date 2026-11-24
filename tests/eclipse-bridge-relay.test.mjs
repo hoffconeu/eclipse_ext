@@ -99,10 +99,18 @@ test('synthetic pairing, grant, one-time encrypted read and revocation', {timeou
     const offered = await call('/local/proposal', {method: 'POST', headers: localHeaders,
       body: JSON.stringify({id: proposalId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})});
     assert.equal(offered.status, 200);
+    assert.equal((await (await call('/local/delivery/' + proposalId, {headers: localHeaders})).json()).status, 'queued');
     assert.match(await (await signed('GET', '/device/poll')).text(), new RegExp('^P\t' + proposalId + '\t'));
-    assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 200);
+    assert.equal((await signed('POST', '/device/delivery/' + proposalId, 'displayed')).status, 200);
+    assert.equal((await (await call('/local/delivery/' + proposalId, {headers: localHeaders})).json()).status, 'displayed');
     assert.equal(await (await signed('GET', '/device/poll')).text(), '');
-    assert.equal((await signed('POST', '/device/ack/' + proposalId)).status, 409);
+    assert.equal((await signed('POST', '/device/delivery/' + proposalId, 'displayed')).status, 409);
+    const failedId = randomUUID();
+    assert.equal((await call('/local/proposal', {method: 'POST', headers: localHeaders,
+      body: JSON.stringify({id: failedId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})})).status, 200);
+    assert.equal((await signed('POST', '/device/delivery/' + failedId, 'editor_changed')).status, 200);
+    assert.deepEqual(await (await call('/local/delivery/' + failedId, {headers: localHeaders})).json(),
+      {id: failedId, status: 'failed', reason: 'editor_changed'});
     const linkId = randomUUID();
     const linkEnvelope = encryptEnvelope('SYNTHETIC ADT LINK', proposalPublic);
     const linkOffer = await call('/local/open-link', {method: 'POST', headers: localHeaders,
@@ -117,6 +125,7 @@ test('synthetic pairing, grant, one-time encrypted read and revocation', {timeou
     assert.equal((await call('/local/proposal', {method: 'POST', headers: localHeaders,
       body: JSON.stringify({id: laterId, sessionId: keyReply.sessionId, envelope: proposalEnvelope})})).status, 200);
     assert.equal((await signed('POST', '/device/session', 'stop')).status, 200);
+    assert.equal((await (await call('/local/delivery/' + laterId, {headers: localHeaders})).json()).status, 'session_stopped');
     assert.equal((await signed('POST', '/device/session', 'start\n' + proposalPublic)).status, 200);
     assert.equal(await (await signed('GET', '/device/poll')).text(), '');
   } finally {

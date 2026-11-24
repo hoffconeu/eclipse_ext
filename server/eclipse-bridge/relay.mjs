@@ -18,9 +18,18 @@ const active = new Map();
 const requests = new EclipseReadRequests();
 const requestSessions = new Map();
 const proposals = new Map();
+const deliveries = new Map();
 const PROPOSAL_TTL = 120_000;
+const DELIVERY_TTL = 600_000;
+function deliveryStatus(id, status, reason) {
+  const item = deliveries.get(id);
+  if (item) deliveries.set(id, {deviceId: item.deviceId, sessionId: item.sessionId,
+    status, ...(reason ? {reason} : {}), expires: now() + DELIVERY_TTL});
+}
 function clearProposals(deviceId) {
-  for (const [id, item] of proposals) if (item.deviceId === deviceId) proposals.delete(id);
+  for (const [id, item] of proposals) if (item.deviceId === deviceId) {
+    deliveryStatus(id, 'session_stopped'); proposals.delete(id);
+  }
 }
 
 async function saveDevices() {
@@ -33,7 +42,10 @@ setInterval(() => {
   requests.purgeExpired();
   for (const [id] of requestSessions) if (!requests.exists(id)) requestSessions.delete(id);
   for (const [code, pending] of pairCodes) if (pending.expires < now()) pairCodes.delete(code);
-  for (const [id, item] of proposals) if (item.expires < now()) proposals.delete(id);
+  for (const [id, item] of proposals) if (item.expires < now()) {
+    deliveryStatus(id, 'expired'); proposals.delete(id);
+  }
+  for (const [id, item] of deliveries) if (item.expires < now()) deliveries.delete(id);
 }, 30_000).unref();
 
 function response(res, status, body = '', headers = {}) {
@@ -126,7 +138,20 @@ const server = createServer(async (req, res) => {
         const item = proposals.get(ack[1]);
         if (!item || item.deviceId !== id || item.sessionId !== active.get(id).sessionId)
           return signed(res, 409, 'expired');
-        proposals.delete(ack[1]);
+        deliveryStatus(ack[1], 'received_unconfirmed'); proposals.delete(ack[1]);
+        return signed(res, 200, 'accepted');
+      }
+      const delivery = /^\/device\/delivery\/([a-f0-9-]{36})$/.exec(path);
+      if (delivery && req.method === 'POST' && active.has(id)) {
+        const item = proposals.get(delivery[1]);
+        if (!item || item.deviceId !== id || item.sessionId !== active.get(id).sessionId)
+          return signed(res, 409, 'expired');
+        const outcome = body.toString('utf8');
+        if (!['displayed', 'editor_closed', 'editor_changed', 'session_stopped', 'ui_error', 'invalid_payload'].includes(outcome))
+          return signed(res, 400, 'invalid outcome');
+        deliveryStatus(delivery[1], outcome === 'displayed' ? 'displayed' : 'failed',
+          outcome === 'displayed' ? undefined : outcome);
+        proposals.delete(delivery[1]);
         return signed(res, 200, 'accepted');
       }
       const match = /^\/device\/respond\/([a-f0-9-]{36})$/.exec(path);
@@ -153,12 +178,25 @@ const server = createServer(async (req, res) => {
         const input = JSON.parse(body.toString('utf8'));
         if (!/^[a-f0-9-]{36}$/.test(input.id || '') || typeof input.envelope !== 'string'
           || input.envelope.length > MAX_CIPHERTEXT || !/^[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+){4}$/.test(input.envelope)
-          || input.sessionId !== active.get(live[0]).sessionId || proposals.has(input.id)
+          || input.sessionId !== active.get(live[0]).sessionId || deliveries.has(input.id)
           || !active.get(live[0]).proposalKey || proposals.size >= 20) return error(res, 400);
         proposals.set(input.id, {deviceId: live[0], sessionId: input.sessionId,
           kind: path === '/local/open-link' ? 'open-link' : 'proposal',
           envelope: input.envelope, expires: now() + PROPOSAL_TTL});
+        deliveries.set(input.id, {deviceId: live[0], sessionId: input.sessionId,
+          status: 'queued', expires: now() + DELIVERY_TTL});
         return response(res, 200, JSON.stringify({status: 'queued', id: input.id}));
+      }
+      const deliveryStatusPath = /^\/local\/delivery\/([a-f0-9-]{36})$/.exec(path);
+      if (deliveryStatusPath && req.method === 'GET') {
+        const pending = proposals.get(deliveryStatusPath[1]);
+        if (pending && pending.expires <= now()) {
+          deliveryStatus(deliveryStatusPath[1], 'expired'); proposals.delete(deliveryStatusPath[1]);
+        }
+        const item = deliveries.get(deliveryStatusPath[1]);
+        if (!item) return response(res, 200, JSON.stringify({status: 'unknown'}));
+        return response(res, 200, JSON.stringify({id: deliveryStatusPath[1],
+          status: item.status, ...(item.reason ? {reason: item.reason} : {})}));
       }
       if (path === '/local/request' && req.method === 'POST') {
         if (live.length !== 1) return error(res, 409);

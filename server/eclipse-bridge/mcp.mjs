@@ -26,6 +26,19 @@ async function resultFor(id) {
   return plain;
 }
 
+async function deliveryFor(id) {
+  return api(`delivery/${id}`);
+}
+
+async function waitForDelivery(id) {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const result = await deliveryFor(id);
+    if (result.status !== 'queued') return result;
+  }
+  return {id, status: 'queued'};
+}
+
 async function requested(kind, editorId) {
   const created = await api('request', {kind, editorId});
   for (let i = 0; i < 12; i++) {
@@ -41,7 +54,8 @@ const tools = [
   {name: 'eclipse_list_open_editors', description: 'Listet aktuell geoeffnete lesbare Texteditoren der freigegebenen Eclipse-Sitzung; uebertraegt keinen Inhalt.', inputSchema: {type: 'object', properties: {}}},
   {name: 'eclipse_read_editor', description: 'Liest genau einen zuvor gelisteten offenen Texteditor, einschliesslich ungespeicherter Aenderungen; maximal 1 MiB.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}}, required: ['editor_id']}},
   {name: 'eclipse_read_problems', description: 'Liest Eclipse-Problem-Marker (Fehler, Warnungen, Infos) aus dem Workspace nur nach gesonderter Bestaetigung in Eclipse. Ansichtsfilter werden nicht nachgebildet; maximal 500 Marker und 1 MiB.', inputSchema: {type: 'object', properties: {}}},
-  {name: 'eclipse_get_result', description: 'Holt das Ergebnis einer noch laufenden Eclipse-Anfrage anhand ihrer request_id.', inputSchema: {type: 'object', properties: {request_id: {type: 'string'}}, required: ['request_id']}},
+  {name: 'eclipse_get_result', description: 'Holt das Ergebnis einer noch laufenden Leseanfrage oder den Zustellstatus eines Vorschlags anhand seiner request_id.', inputSchema: {type: 'object', properties: {request_id: {type: 'string'}}, required: ['request_id']}},
+  {name: 'eclipse_get_delivery_status', description: 'Prueft anhand der delivery_id, ob ein Vorschlag in Eclipse angezeigt wurde oder warum die Zustellung scheiterte.', inputSchema: {type: 'object', properties: {delivery_id: {type: 'string'}}, required: ['delivery_id']}},
   {name: 'eclipse_show_proposal', description: 'Sendet einen Ende-zu-Ende-verschluesselten Textvorschlag fuer einen zuvor gelesenen Editor an Eclipse. Uebernahme in den Editorpuffer nur nach lokalem Klick und Bestaetigung; keine SAP-Speicherung.', inputSchema: {type: 'object', properties: {editor_id: {type: 'string'}, base_sha256: {type: 'string'}, proposed_text: {type: 'string'}, summary: {type: 'string'}}, required: ['editor_id', 'base_sha256', 'proposed_text']}},
   {name: 'eclipse_open_adt_link', description: 'Bietet Eclipse einen Ende-zu-Ende-verschluesselten ADT-Objektlink zum Oeffnen an. Oeffnen nur nach lokaler Bestaetigung; kein Quelltext wird dadurch an Codex uebertragen.', inputSchema: {type: 'object', properties: {adt_link: {type: 'string'}}, required: ['adt_link']}},
 ];
@@ -76,7 +90,14 @@ async function tool(name, args) {
     }
     case 'eclipse_get_result':
       if (!/^[a-f0-9-]{36}$/.test(args.request_id || '')) throw new Error('Invalid request id');
+      {
+        const delivery = await deliveryFor(args.request_id);
+        if (delivery.status !== 'unknown') return delivery;
+      }
       return resultFor(args.request_id);
+    case 'eclipse_get_delivery_status':
+      if (!/^[a-f0-9-]{36}$/.test(args.delivery_id || '')) throw new Error('Invalid delivery id');
+      return deliveryFor(args.delivery_id);
     case 'eclipse_show_proposal': {
       if (!/^[a-f0-9]{32}$/.test(args.editor_id || '') || !/^[a-f0-9]{64}$/.test(args.base_sha256 || '')
         || typeof args.proposed_text !== 'string' || typeof args.summary !== 'string' && args.summary !== undefined
@@ -89,7 +110,8 @@ async function tool(name, args) {
         Buffer.from(args.proposed_text, 'utf8').toString('base64')].join('\n');
       if (Buffer.byteLength(plain, 'utf8') > MAX_TEXT) throw new Error('Proposal too large');
       const envelope = encryptEnvelope(plain, key.publicKey);
-      return api('proposal', {id, sessionId: key.sessionId, envelope});
+      await api('proposal', {id, sessionId: key.sessionId, envelope});
+      return waitForDelivery(id);
     }
     default: throw new Error('Unknown tool');
   }

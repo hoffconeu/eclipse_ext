@@ -56,7 +56,12 @@ Version 1.0.10 ergaenzt `eclipse_open_adt_link`: Codex kann einen gueltigen
 `adt://`-Objektlink verschluesselt an Eclipse senden. Erst nach lokaler
 Bestaetigung wird er an den registrierten ADT-Linkhandler uebergeben. Die
 Funktion oeffnet ein Objekt, liest aber keinen Quelltext. Der Windows-/ADT-
-Test der programmgesteuerten Linkuebergabe steht noch aus.
+Test gelang nach Aktivierung der `adt://`-Link-Zuordnung.
+
+Version 1.0.11 meldet fuer Textvorschlaege erst `displayed`, wenn das
+Vergleichsfenster in Eclipse tatsaechlich geoeffnet wurde. Fehler wie ein
+inzwischen geschlossener oder veraenderter Editor werden als Zustellstatus
+zurueckgegeben; `queued` allein ist keine Anzeigebestaetigung.
 
 Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von

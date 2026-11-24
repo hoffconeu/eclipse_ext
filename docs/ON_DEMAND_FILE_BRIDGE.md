@@ -1,4 +1,4 @@
-# Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.10)
+# Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.11)
 
 ## Bedienung
 
@@ -22,6 +22,14 @@
    Stimmen Editor-ID oder SHA-256 des aktuellen Textes nicht mehr, wird die
    Uebernahme verweigert. Eclipse speichert/aktiviert dabei nichts in SAP.
    Ohne Uebernahme verfallen Aenderungen am rechten Text beim Schliessen.
+   Ab 1.0.11 wartet der MCP-Aufruf kurz auf eine bestaetigte Anzeige.
+   `displayed` bedeutet, dass Eclipse das Vergleichsfenster geoeffnet hat;
+   `queued` bedeutet nur, dass die Anfrage noch aussteht. Mit
+   `eclipse_get_result(request_id)` oder `eclipse_get_delivery_status(delivery_id)`
+   kann der Status spaeter erneut abgefragt werden. `failed` enthaelt einen
+   Grund wie `editor_closed`, `editor_changed` oder `ui_error`; auch
+   `expired` und `session_stopped` sind moeglich. Die Statusantwort bestaetigt
+   keine Uebernahme des Vorschlags in den Editor.
 6. Mit `eclipse_read_problems` kann Codex die Problem-Marker des gesamten
    Eclipse-Workspace anfragen. Eclipse fragt **bei jedem Abruf gesondert** nach
    Bestaetigung und zeigt zuvor die Anzahl von Fehlern, Warnungen und Infos.
@@ -53,7 +61,8 @@
   Protokolle und Dateipfade werden verworfen. Der registrierte ADT-Linkhandler
   muss auf die gewuenschte Eclipse-Installation zeigen; das manuelle Oeffnen
   ueber `Navigate` → `Open ADT Link` prueft diese Registrierung nicht. Der
-  Zielrechner-Test mit einem harmlosen Objekt ist noch offen.
+  Der Zielrechner-Test mit einem ADT-Link gelang nach Aktivierung der
+  Windows-Link-Zuordnung.
 - Je Antwort maximal 1 MiB Klartext. Uebergrosse Texte erzeugen einen
   `too_large`-Fehler, keine still gekuerzten Inhalte.
 - Die Eclipse-Instanz erzeugt einen Ed25519-Geraeteschluessel und speichert
@@ -90,8 +99,8 @@ Plug-in-Artefakt und die beiden in Eclipse angezeigten Fingerprints ueber
 einen unabhaengig vertrauenswuerdigen Kanal vergleichen. Dass die Firma den
 Transfer erlaubt, ersetzt diese technische Kontrolle nicht.
 
-- Plug-in 1.0.10.202611231001 SHA-256:
-  `4d415b6324806898945a3bdba6a792552b57025681ab9f73d2d3dc5b2873eea5`
+- Plug-in 1.0.11.202611241306 SHA-256:
+  `bceb10e94b88582cb280f212d166879df46c6e99b41bade43bb639f8b1a60d0b`
 - Empfaenger-SPKI SHA-256:
   `a5d565c67dd4bcd67317ab2e32db843cf732e51c383f7403d3dcc43921643c7e`
 - Server-Signatur-SPKI SHA-256:

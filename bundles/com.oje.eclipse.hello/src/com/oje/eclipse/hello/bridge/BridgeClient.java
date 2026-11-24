@@ -262,20 +262,48 @@ public final class BridgeClient {
     }
 
     private void receiveProposal(String id, String envelope) throws Exception {
-        if (!id.matches("[a-f0-9-]{36}") || seenProposals.contains(id) || proposalPrivate == null) return;
-        byte[] plain = JweReader.decrypt(envelope, proposalPrivate);
-        String[] parts = new String(plain, StandardCharsets.UTF_8).split("\n", -1);
+        if (!id.matches("[a-f0-9-]{36}") || seenProposals.contains(id)) return;
+        if (proposalPrivate == null) { rejectProposal(id); return; }
+        String[] parts;
+        try {
+            byte[] plain = JweReader.decrypt(envelope, proposalPrivate);
+            parts = new String(plain, StandardCharsets.UTF_8).split("\n", -1);
+        } catch (Exception failure) { rejectProposal(id); return; }
         if (parts.length != 6 || !id.equals(parts[0]) || !parts[1].matches("[a-f0-9]{32}")
             || !parts[2].matches("[a-f0-9]{64}") || !parts[3].matches("[0-9]{13}")
-            || Math.abs(System.currentTimeMillis() - Long.parseLong(parts[3])) > 120_000) return;
-        String summary = new String(Base64.getDecoder().decode(parts[4]), StandardCharsets.UTF_8);
-        String suggested = new String(Base64.getDecoder().decode(parts[5]), StandardCharsets.UTF_8);
-        if (summary.length() > 500 || suggested.length() > 1_048_576) return;
+            || Math.abs(System.currentTimeMillis() - Long.parseLong(parts[3])) > 120_000) {
+            rejectProposal(id); return;
+        }
+        String summary, suggested;
+        try {
+            summary = new String(Base64.getDecoder().decode(parts[4]), StandardCharsets.UTF_8);
+            suggested = new String(Base64.getDecoder().decode(parts[5]), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException failure) { rejectProposal(id); return; }
+        if (summary.length() > 500 || suggested.length() > 1_048_576) { rejectProposal(id); return; }
         seenProposals.add(id);
         Display display = Display.getDefault();
-        if (display.isDisposed()) return;
-        display.asyncExec(() -> showProposal(parts[1], parts[2], summary, suggested));
-        send("POST", "ack/" + id, "", deviceId, devicePrivate);
+        if (display.isDisposed()) { reportDelivery(id, "ui_error", System.currentTimeMillis() + 110_000); return; }
+        display.asyncExec(() -> {
+            String outcome;
+            try { outcome = showProposal(parts[1], parts[2], summary, suggested); }
+            catch (RuntimeException failure) { outcome = "ui_error"; }
+            final String result = outcome;
+            scheduler.execute(() -> reportDelivery(id, result, System.currentTimeMillis() + 110_000));
+        });
+    }
+
+    private void rejectProposal(String id) {
+        seenProposals.add(id);
+        scheduler.execute(() -> reportDelivery(id, "invalid_payload", System.currentTimeMillis() + 110_000));
+    }
+
+    private void reportDelivery(String id, String outcome, long deadline) {
+        if (!active || System.currentTimeMillis() >= deadline) return;
+        try {
+            int status = send("POST", "delivery/" + id, outcome, deviceId, devicePrivate).statusCode();
+            if (status == 200 || status == 409) return;
+        } catch (Exception ignored) { /* Retry while this session remains active. */ }
+        scheduler.schedule(() -> reportDelivery(id, outcome, deadline), 2, TimeUnit.SECONDS);
     }
 
     private void receiveOpenLink(String id, String envelope) throws Exception {
@@ -317,15 +345,16 @@ public final class BridgeClient {
             "Oje.me: ADT-Link nicht geoeffnet", "Kein ADT-Linkhandler gefunden. Bitte die ADT-Linkhandler-Einstellung in Eclipse pruefen.");
     }
 
-    private void showProposal(String editorId, String baseHash, String summary, String suggested) {
-        if (!active || Display.getDefault().isDisposed()) return;
+    private String showProposal(String editorId, String baseHash, String summary, String suggested) {
+        if (!active || Display.getDefault().isDisposed()) return "session_stopped";
         for (Editor editor : openEditors()) {
             if (!editor.id.equals(editorId)) continue;
             IDocument document = editor.text.getDocumentProvider().getDocument(editor.part.getEditorInput());
             if (document == null || !baseHash.equals(sha256(document.get()))) {
-                MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
-                    "Der Editor hat sich seit dem Lesen geaendert. Vorschlag verworfen; bitte erneut lesen.");
-                return;
+                Display.getDefault().asyncExec(() -> MessageDialog.openWarning(
+                    Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
+                    "Der Editor hat sich seit dem Lesen geaendert. Vorschlag verworfen; bitte erneut lesen."));
+                return "editor_changed";
             }
             Shell shell = new Shell(Display.getDefault().getActiveShell(), SWT.SHELL_TRIM | SWT.RESIZE);
             shell.setText("Oje.me Vorschlag: " + editor.part.getTitle());
@@ -386,10 +415,13 @@ public final class BridgeClient {
             close.addListener(SWT.Selection, event -> shell.close());
             shell.setSize(1100, 700);
             shell.open();
-            return;
+            try { shell.forceActive(); } catch (RuntimeException ignored) { /* Window is already open. */ }
+            return "displayed";
         }
-        MessageDialog.openWarning(Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
-            "Der Ziel-Editor ist nicht mehr offen. Vorschlag verworfen.");
+        Display.getDefault().asyncExec(() -> MessageDialog.openWarning(
+            Display.getDefault().getActiveShell(), "Oje.me Vorschlag",
+            "Der Ziel-Editor ist nicht mehr offen. Vorschlag verworfen."));
+        return "editor_closed";
     }
 
     private static String sha256(String text) {
