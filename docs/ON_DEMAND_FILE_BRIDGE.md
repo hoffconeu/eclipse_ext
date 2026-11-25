@@ -1,5 +1,11 @@
 # Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.11)
 
+Hinweis zu 1.0.12: `eclipse_list_open_editors` liefert zusaetzlich Editor- und
+Input-Typ, Workbench-Editor-ID sowie (falls verfuegbar) Input-URI. Diese
+Metadaten dienen der Diagnose von ADT-Text-Elementen. Sie werden nur in der
+freigegebenen Sitzung verschluesselt uebertragen; die drei Text-Elemente-
+Bereiche werden damit noch nicht vollstaendig gelesen.
+
 ## Bedienung
 
 1. In Eclipse ab Version 1.0.9 `Help` → `Oje.me` → `Codex-Geraet koppeln` ausfuehren.

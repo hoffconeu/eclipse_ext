@@ -184,7 +184,16 @@ public final class BridgeClient {
                     if (json.charAt(json.length() - 1) != '[') json.append(',');
                     json.append("{\"id\":").append(quote(editor.id)).append(",\"title\":")
                         .append(quote(editor.part.getTitle())).append(",\"dirty\":")
-                        .append(editor.part.isDirty()).append('}');
+                        .append(editor.part.isDirty())
+                        .append(",\"editorType\":").append(quote(editor.part.getClass().getName()))
+                        .append(",\"inputType\":").append(quote(editor.part.getEditorInput().getClass().getName()))
+                        .append(",\"inputName\":").append(quote(editor.part.getEditorInput().getName()))
+                        .append(",\"inputTooltip\":").append(quote(editor.part.getEditorInput().getToolTipText()))
+                        .append(",\"workbenchEditorId\":").append(quote(editor.part.getSite().getId()))
+                        .append(",\"inputUri\":")
+                        .append(editor.part.getEditorInput().getAdapter(URI.class) instanceof URI uri
+                            ? quote(uri.toString()) : "null")
+                        .append('}');
                 }
                 result[0] = json.append("]}").toString();
             } else if (fields.length == 3 && "read".equals(fields[1])) {
