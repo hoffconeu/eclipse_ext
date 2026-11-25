@@ -1,4 +1,4 @@
-# Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.11)
+# Eclipse ↔ Codex: Texteditoren, Vorschlaege, Problem-Marker und ADT-Links (1.0.13)
 
 Hinweis zu 1.0.12: `eclipse_list_open_editors` liefert zusaetzlich Editor- und
 Input-Typ, Workbench-Editor-ID sowie (falls verfuegbar) Input-URI. Diese
@@ -25,6 +25,8 @@ Bereiche werden damit noch nicht vollstaendig gelesen.
    Eclipse zeigt den aktuellen Stand links schreibgeschuetzt und den Vorschlag
    rechts bearbeitbar. Mit `In offenen Editor uebernehmen` und einer weiteren
    Bestaetigung wird der rechte Text in den noch offenen Editorpuffer eingesetzt.
+   Im optionalen Sitzungsmodus ab 1.0.13 entfaellt nur diese zweite Nachfrage;
+   der lokale Uebernahme-Klick bleibt zwingend.
    Stimmen Editor-ID oder SHA-256 des aktuellen Textes nicht mehr, wird die
    Uebernahme verweigert. Eclipse speichert/aktiviert dabei nichts in SAP.
    Ohne Uebernahme verfallen Aenderungen am rechten Text beim Schliessen.
@@ -48,11 +50,21 @@ Bereiche werden damit noch nicht vollstaendig gelesen.
    Eclipse-Neustart beendet sie; die Geraetekopplung bleibt erhalten.
 8. `eclipse_open_adt_link(adt_link)` bietet ab 1.0.10 einen `adt://`-Link
    verschluesselt in der laufenden Sitzung an. Eclipse zeigt System und Objekt
-   und verlangt fuer **jeden** Link eine lokale Bestaetigung. Danach uebergibt
+   und verlangt normalerweise fuer **jeden** Link eine lokale Bestaetigung. Danach uebergibt
    es ihn an den registrierten ADT-Linkhandler. Das Oeffnen allein uebertraegt
    keinen Quelltext; dazu ist `eclipse_read_editor` weiterhin separat noetig.
    Die Antwort `queued` bedeutet nur, dass die Anfrage zugestellt wurde, nicht
    dass der Nutzer zugestimmt oder ADT das Objekt geoeffnet hat.
+
+9. Optional ab 1.0.13: `Help` → `Oje.me` →
+   `ADT-Link-/Vorschlags-Nachfragen umschalten` waehrend der aktiven Sitzung
+   waehlen und die einmalige Warnung bestaetigen. Dann werden gueltige
+   ADT-Links ohne Einzelabfrage an den Linkhandler uebergeben; bei Vorschlaegen
+   entfaellt die zweite Nachfrage nach dem lokalen Uebernahme-Klick. Der
+   Fenstertitel zeigt `LINKS/VORSCHLAG OHNE FRAGE`. Derselbe Menuepunkt
+   schaltet die Nachfragen wieder ein. Stoppen oder Neustart setzt den Modus
+   automatisch auf den sicheren Standard zurueck. Die Problems-Freigabe,
+   Editorstand-Pruefung und das manuelle Speichern/Aktivieren bleiben unveraendert.
 
 ## Grenzen und Absicherung
 

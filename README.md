@@ -63,6 +63,11 @@ Vergleichsfenster in Eclipse tatsaechlich geoeffnet wurde. Fehler wie ein
 inzwischen geschlossener oder veraenderter Editor werden als Zustellstatus
 zurueckgegeben; `queued` allein ist keine Anzeigebestaetigung.
 
+Version 1.0.13 bietet waehrend einer aktiven Lesesitzung unter `Help` →
+`Oje.me` einen optionalen Modus ohne Einzelbestaetigung fuer ADT-Links und
+ohne zweite Nachfrage nach dem manuellen Vorschlags-Uebernahme-Klick. Der
+Modus ist standardmaessig aus und endet beim Stoppen oder Neustart.
+
 Automatisches Zurueckschreiben in SAP ist nicht vorgesehen. Die
 Java-Verschluesselungsroutine mit Public-Key-Fingerprint-Pruefung wird von
 der lesenden 1.0.5-Bruecke genutzt; der alte Python-Entschluesseler fuer den

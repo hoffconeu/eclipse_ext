@@ -24,6 +24,7 @@
         <command id="com.oje.eclipse.hello.commands.pairBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Geraet koppeln"/>
         <command id="com.oje.eclipse.hello.commands.startBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Lesezugriff starten"/>
         <command id="com.oje.eclipse.hello.commands.stopBridge" categoryId="com.oje.eclipse.hello.commands.category" name="Codex-Lesezugriff stoppen"/>
+        <command id="com.oje.eclipse.hello.commands.toggleConfirmations" categoryId="com.oje.eclipse.hello.commands.category" name="ADT-Link-/Vorschlags-Nachfragen umschalten"/>
     </extension>
 
     <extension point="org.eclipse.ui.handlers">
@@ -42,6 +43,7 @@
         <handler commandId="com.oje.eclipse.hello.commands.pairBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
         <handler commandId="com.oje.eclipse.hello.commands.startBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
         <handler commandId="com.oje.eclipse.hello.commands.stopBridge" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
+        <handler commandId="com.oje.eclipse.hello.commands.toggleConfirmations" class="com.oje.eclipse.hello.handlers.BridgeHandler"/>
     </extension>
 
     <extension point="org.eclipse.ui.menus">
@@ -50,6 +52,7 @@
                 <command commandId="com.oje.eclipse.hello.commands.pairBridge" label="Codex-Geraet koppeln" style="push"/>
                 <command commandId="com.oje.eclipse.hello.commands.startBridge" label="Codex-Lesezugriff starten" style="push"/>
                 <command commandId="com.oje.eclipse.hello.commands.stopBridge" label="Codex-Lesezugriff stoppen" style="push"/>
+                <command commandId="com.oje.eclipse.hello.commands.toggleConfirmations" label="ADT-Link-/Vorschlags-Nachfragen umschalten" style="push"/>
                 <separator name="com.oje.eclipse.hello.helpMenu.tests"/>
                 <command commandId="com.oje.eclipse.hello.commands.checkSelection" label="ABAP-Auswahl pruefen (lokal)" style="push"/>
                 <command commandId="com.oje.eclipse.hello.commands.cryptoTest" label="Verschluesselungstest (nur Testtext)" style="push"/>

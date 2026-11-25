@@ -63,13 +63,14 @@ public final class BridgeClient {
     private static final String RECIPIENT_PIN = "a5d565c67dd4bcd67317ab2e32db843cf732e51c383f7403d3dcc43921643c7e";
     private static final String SERVER_PIN = "8d52a5d0abc7cee905afd3693dbf3c5f76cabf89e315f41154e0d3fa27e8c466";
     private static final String TITLE_MARK = " [OJE Codex: LESEN AKTIV]";
+    private static final String FAST_MARK = " [LINKS/VORSCHLAG OHNE FRAGE]";
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread thread = new Thread(r, "OJE Codex bridge poll"); thread.setDaemon(true); return thread;
     });
     private final Map<IEditorPart, String> editorIds = new IdentityHashMap<>();
-    private final Map<IWorkbenchWindow, String> titles = new IdentityHashMap<>();
     private volatile boolean active;
+    private volatile boolean skipConfirmations;
     private ScheduledFuture<?> polling;
     private PublicKey serverPublic;
     private PublicKey recipientPublic;
@@ -81,6 +82,12 @@ public final class BridgeClient {
     private BridgeClient() { }
     public static BridgeClient get() { return INSTANCE; }
     public boolean isActive() { return active; }
+    public boolean skipsConfirmations() { return active && skipConfirmations; }
+    public void setSkipConfirmations(boolean enabled) {
+        if (!active) throw new IllegalStateException("Bitte zuerst den Codex-Lesezugriff starten.");
+        skipConfirmations = enabled;
+        Display.getDefault().syncExec(this::updateTitles);
+    }
     public static String recipientFingerprint() { return RECIPIENT_PIN; }
     public static String serverFingerprint() { return SERVER_PIN; }
 
@@ -105,6 +112,7 @@ public final class BridgeClient {
 
     public synchronized void start() throws Exception {
         if (active) return;
+        skipConfirmations = false;
         loadPinnedKeys(); loadDevice();
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(3072);
@@ -124,6 +132,7 @@ public final class BridgeClient {
 
     public synchronized void stop() {
         active = false;
+        skipConfirmations = false;
         proposalPrivate = null;
         seenProposals.clear();
         if (polling != null) polling.cancel(false);
@@ -345,7 +354,7 @@ public final class BridgeClient {
     private void showOpenLink(String link) {
         if (!active || Display.getDefault().isDisposed()) return;
         URI uri = URI.create(link);
-        if (!MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Oje.me: ADT-Objekt oeffnen?",
+        if (!skipsConfirmations() && !MessageDialog.openConfirm(Display.getDefault().getActiveShell(), "Oje.me: ADT-Objekt oeffnen?",
             "Codex moechte einen ADT-Link im registrierten ADT-Linkhandler oeffnen."
                 + "\n\nSystem: " + uri.getHost() + "\nLink: " + link
                 + "\n\nBitte pruefen, ob der Linkhandler auf dieses Eclipse zeigt."
@@ -402,7 +411,7 @@ public final class BridgeClient {
                     MessageDialog.openWarning(shell, "Uebernahme nicht moeglich", "Der Ziel-Editor ist schreibgeschuetzt.");
                     return;
                 }
-                if (!MessageDialog.openConfirm(shell, "Vorschlag uebernehmen?",
+                if (!skipsConfirmations() && !MessageDialog.openConfirm(shell, "Vorschlag uebernehmen?",
                     "Den rechten Text in den offenen Eclipse-Editor uebernehmen? "
                         + "Das speichert oder aktiviert den ABAP-Quelltext nicht in SAP.")) return;
                 if (!baseHash.equals(sha256(latest.get())) || !target.text.isEditable()) {
@@ -445,14 +454,10 @@ public final class BridgeClient {
         for (IWorkbenchWindow window : PlatformUI.getWorkbench().getWorkbenchWindows()) {
             if (window.getShell() == null || window.getShell().isDisposed()) continue;
             String current = window.getShell().getText();
-            if (active) {
-                if (!current.endsWith(TITLE_MARK)) {
-                    titles.put(window, current);
-                    window.getShell().setText(current + TITLE_MARK);
-                }
-            } else if (current.endsWith(TITLE_MARK)) {
-                window.getShell().setText(current.substring(0, current.length() - TITLE_MARK.length()));
-            }
+            if (current.endsWith(FAST_MARK)) current = current.substring(0, current.length() - FAST_MARK.length());
+            if (current.endsWith(TITLE_MARK)) current = current.substring(0, current.length() - TITLE_MARK.length());
+            String next = current + (active ? TITLE_MARK + (skipConfirmations ? FAST_MARK : "") : "");
+            if (!window.getShell().getText().equals(next)) window.getShell().setText(next);
         }
     }
 

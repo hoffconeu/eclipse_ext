@@ -30,7 +30,8 @@ public final class BridgeHandler extends AbstractHandler {
                         + " auf Anfrage lesen, auch ungespeicherte Aenderungen. Codex kann waehrend der Sitzung"
                         + " verschluesselte Textvorschlaege fuer zuvor gelesene Editoren senden."
                         + " Die Vorschlaege koennen nur nach lokalem Klick in den offenen Editorpuffer uebernommen werden."
-                        + " Codex kann ADT-Objektlinks zum Oeffnen anbieten; jeder Link braucht eine eigene Bestaetigung."
+                        + " Codex kann ADT-Objektlinks zum Oeffnen anbieten; normalerweise braucht jeder Link eine eigene Bestaetigung."
+                        + " Der separat aktivierbare Sitzungsmodus laesst diese Bestaetigung und die zweite Nachfrage bei der Vorschlagsuebernahme aus."
                         + " Problem-Marker aus dem gesamten Workspace sind nur nach zusaetzlicher Bestaetigung je Abruf lesbar."
                         + " Keine Binardateien, kein automatisches SAP-Speichern oder Aktivieren."
                         + "\n\nDie Freigabe endet erst bei 'Codex-Lesezugriff stoppen' oder beim Schliessen von Eclipse."
@@ -46,6 +47,25 @@ public final class BridgeHandler extends AbstractHandler {
             } else if (command.endsWith(".stopBridge")) {
                 bridge.stop();
                 MessageDialog.openInformation(HandlerUtil.getActiveShell(event), "OJE Codex", "Lesezugriff beendet.");
+            } else if (command.endsWith(".toggleConfirmations")) {
+                if (!bridge.isActive()) throw new IllegalStateException("Bitte zuerst den Codex-Lesezugriff starten.");
+                if (bridge.skipsConfirmations()) {
+                    bridge.setSkipConfirmations(false);
+                    MessageDialog.openInformation(HandlerUtil.getActiveShell(event), "OJE Codex",
+                        "Einzelbestaetigungen fuer ADT-Links und Vorschlagsuebernahme sind wieder aktiv.");
+                } else if (MessageDialog.openConfirm(HandlerUtil.getActiveShell(event),
+                    "OJE Codex: Nachfragen fuer diese Sitzung ausschalten?",
+                    "ADT-Links von Codex werden dann ohne weitere Rueckfrage an den registrierten Linkhandler uebergeben."
+                        + " Bei einem angezeigten Vorschlag genuegt der Klick auf 'In offenen Editor uebernehmen';"
+                        + " die zweite Bestaetigung entfaellt. Vorschlaege werden NICHT automatisch uebernommen,"
+                        + " gespeichert oder in SAP aktiviert. Die Pruefung des Editorstands bleibt aktiv."
+                        + "\n\nDer Modus gilt nur fuer die laufende Lesesitzung und wird beim Stoppen oder"
+                        + " Neustart von Eclipse ausgeschaltet. Im Fenstertitel steht dann"
+                        + " 'LINKS/VORSCHLAG OHNE FRAGE'. Jetzt einschalten?")) {
+                    bridge.setSkipConfirmations(true);
+                    MessageDialog.openInformation(HandlerUtil.getActiveShell(event), "OJE Codex",
+                        "Sitzungsmodus aktiv: ADT-Links ohne Nachfrage; Vorschlagsuebernahme nach lokalem Klick ohne zweite Nachfrage.");
+                }
             }
         } catch (Exception failure) {
             MessageDialog.openError(HandlerUtil.getActiveShell(event), "OJE Codex-Bruecke",
